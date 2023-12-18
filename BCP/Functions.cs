@@ -1,36 +1,37 @@
-﻿using GameNetcodeStuff;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.AI;
 using static BrutalCompanyPlus.BCP.Variables;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace BrutalCompanyPlus.BCP
 {
     public static class Functions
     {
-        public static void AddSpecificEnemiesForEvent(SelectableLevel newLevel, List<Type> enemyAITypes)
+        public static void AddSpecificEnemiesForEvent(SelectableLevel NewLevel, List<Type> EnemyAITypes)
         {
-            SelectableLevel[] levels = StartOfRound.Instance.levels;
+            var levels = StartOfRound.Instance.levels;
             foreach (var level in levels)
             {
                 foreach (var spawnable in level.Enemies)
                 {
                     var enemyPrefab = spawnable.enemyType.enemyPrefab;
 
-                    foreach (var aiType in enemyAITypes)
+                    foreach (var aiType in EnemyAITypes)
                     {
                         //Check if this enemy has the AI component we're looking for
                         if (enemyPrefab.GetComponent(aiType) != null)
                         {
                             //Check if this enemy is not already in the new level
-                            if (!newLevel.Enemies.Any(e => e.enemyType.enemyPrefab == enemyPrefab))
+                            if (!NewLevel.Enemies.Any(E => E.enemyType.enemyPrefab == enemyPrefab))
                             {
-                                newLevel.Enemies.Add(spawnable);
-                                Variables.mls.LogInfo($"Added specific Enemy: > {spawnable.enemyType.enemyPrefab.name} < for event");
+                                NewLevel.Enemies.Add(spawnable);
+                                Mls.LogInfo($"Added specific Enemy: > {spawnable.enemyType.enemyPrefab.name} < for event");
                                 //BcpLogger.Log($"Added specific Enemy: > {spawnable.enemyType.enemyPrefab.name} < for event");
                             }
                         }
@@ -40,32 +41,32 @@ namespace BrutalCompanyPlus.BCP
         }
 
         //This is designed to check for Enemy Type existance and add it to the Enemy list if it doesn't exist
-        public static GameObject FindEnemyPrefabByType(Type enemyType, List<SpawnableEnemyWithRarity> enemyList, SelectableLevel newLevel)
+        public static GameObject FindEnemyPrefabByType(Type EnemyType, List<SpawnableEnemyWithRarity> EnemyList, SelectableLevel NewLevel)
         {
-            foreach (var enemy in enemyList)
+            foreach (var enemy in EnemyList)
             {
-                if (enemy.enemyType.enemyPrefab.GetComponent(enemyType) != null)
+                if (enemy.enemyType.enemyPrefab.GetComponent(EnemyType) != null)
                 {
                     return enemy.enemyType.enemyPrefab;
                 }
             }
 
             //If the enemy type is not found, try to add it to the newLevel
-            AddSpecificEnemiesForEvent(newLevel, new List<Type> { enemyType });
+            AddSpecificEnemiesForEvent(NewLevel, new List<Type> { EnemyType });
 
             //Search again in the newLevel's enemy list
-            foreach (var enemy in newLevel.Enemies)
+            foreach (var enemy in NewLevel.Enemies)
             {
-                if (enemy.enemyType.enemyPrefab.GetComponent(enemyType) != null)
+                if (enemy.enemyType.enemyPrefab.GetComponent(EnemyType) != null)
                 {
                     return enemy.enemyType.enemyPrefab;
                 }
             }
 
-            throw new Exception($"Enemy type {enemyType.Name} not found and could not be added.");
+            throw new Exception($"Enemy type {EnemyType.Name} not found and could not be added.");
         }
 
-        public static EnemyAI SpawnEnemyOutside(Type enemyType, bool ForceOutside)
+        public static EnemyAI SpawnEnemyOutside(Type EnemyType, bool ForceOutside)
         {
 
             GameObject enemyPrefab = null;
@@ -73,22 +74,22 @@ namespace BrutalCompanyPlus.BCP
             //Find enemy prefab by type
             if (ForceOutside)
             {
-                enemyPrefab = FindEnemyPrefabByType(enemyType, RoundManager.Instance.currentLevel.Enemies, Variables.CurrentLevel);
+                enemyPrefab = FindEnemyPrefabByType(EnemyType, RoundManager.Instance.currentLevel.Enemies, CurrentLevel);
             }
             else
             {
-                enemyPrefab = FindEnemyPrefabByType(enemyType, RoundManager.Instance.currentLevel.OutsideEnemies, Variables.CurrentLevel);
+                enemyPrefab = FindEnemyPrefabByType(EnemyType, RoundManager.Instance.currentLevel.OutsideEnemies, CurrentLevel);
             }
            
 
-            GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("OutsideAINode");
-            Vector3 spawnPosition = spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)].transform.position;
+            var spawnPoints = GameObject.FindGameObjectsWithTag("OutsideAINode");
+            var spawnPosition = spawnPoints[Random.Range(0, spawnPoints.Length)].transform.position;
 
             //Instantiate enemy
-            GameObject enemyObject = UnityEngine.Object.Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            var enemyObject = Object.Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             enemyObject.GetComponentInChildren<NetworkObject>().Spawn(true);
 
-            EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
+            var enemyAI = enemyObject.GetComponent<EnemyAI>();
 
             if (ForceOutside)
             {
@@ -101,30 +102,30 @@ namespace BrutalCompanyPlus.BCP
             return enemyAI;
         }
 
-        public static EnemyAI SpawnEnemyFromVent(Type enemyType, bool ForceInside)
+        public static EnemyAI SpawnEnemyFromVent(Type EnemyType, bool ForceInside)
         {
             GameObject enemyPrefab = null;
 
             //Find enemy prefab by type
             if (ForceInside)
             {
-                enemyPrefab = FindEnemyPrefabByType(enemyType, RoundManager.Instance.currentLevel.OutsideEnemies, Variables.CurrentLevel);
+                enemyPrefab = FindEnemyPrefabByType(EnemyType, RoundManager.Instance.currentLevel.OutsideEnemies, CurrentLevel);
             }
             else
             {
-                enemyPrefab = FindEnemyPrefabByType(enemyType, RoundManager.Instance.currentLevel.Enemies, Variables.CurrentLevel);
+                enemyPrefab = FindEnemyPrefabByType(EnemyType, RoundManager.Instance.currentLevel.Enemies, CurrentLevel);
             }
 
-            int ventIndex = UnityEngine.Random.Range(0, RoundManager.Instance.allEnemyVents.Length);
-            Vector3 spawnPosition = RoundManager.Instance.allEnemyVents[ventIndex].floorNode.position;
-            Quaternion spawnRotation = Quaternion.Euler(0, RoundManager.Instance.allEnemyVents[ventIndex].floorNode.eulerAngles.y, 0);
+            var ventIndex = Random.Range(0, RoundManager.Instance.allEnemyVents.Length);
+            var spawnPosition = RoundManager.Instance.allEnemyVents[ventIndex].floorNode.position;
+            var spawnRotation = Quaternion.Euler(0, RoundManager.Instance.allEnemyVents[ventIndex].floorNode.eulerAngles.y, 0);
 
             //Instantiate enemy at the vent location
-            GameObject enemyObject = UnityEngine.Object.Instantiate(enemyPrefab, spawnPosition, spawnRotation);
+            var enemyObject = Object.Instantiate(enemyPrefab, spawnPosition, spawnRotation);
             enemyObject.GetComponentInChildren<NetworkObject>().Spawn(true);
 
             //Configure the EnemyAI
-            EnemyAI enemyAI = enemyObject.GetComponent<EnemyAI>();
+            var enemyAI = enemyObject.GetComponent<EnemyAI>();
 
             if (ForceInside)
             {
@@ -137,11 +138,11 @@ namespace BrutalCompanyPlus.BCP
             return enemyAI;
         }
 
-        public static void SpawnMultipleEnemies(List<EnemySpawnInfo> enemiesToSpawn)
+        public static void SpawnMultipleEnemies(List<EnemySpawnInfo> EnemiesToSpawn)
         {
-            foreach (var enemyInfo in enemiesToSpawn)
+            foreach (var enemyInfo in EnemiesToSpawn)
             {
-                for (int i = 0; i < enemyInfo.Amount; i++)
+                for (var i = 0; i < enemyInfo.Amount; i++)
                 {
                     switch (enemyInfo.Location)
                     {
@@ -159,62 +160,62 @@ namespace BrutalCompanyPlus.BCP
         //Spawns MouthDogs Inside .-.
         public static void TheBeastsInside()
         {
-            string LevelName = Variables.CurrentLevel.sceneName;
-            int SpawnAmount = 0;
-            Variables.DogForceOwnership = true;
+            var levelName = CurrentLevel.sceneName;
+            var spawnAmount = 0;
+            DogForceOwnership = true;
 
-            switch (LevelName)
+            switch (levelName)
             {
                 case "Titan":
-                    SpawnAmount = 6;
+                    spawnAmount = 6;
                     break;
 
                 case "Rend":
                 case "Dine":
-                    SpawnAmount = 4;
+                    spawnAmount = 4;
                     break;
 
                 case "March":
                 case "Offense":
-                    SpawnAmount = 3;
+                    spawnAmount = 3;
                     break;
 
                 default:
-                    SpawnAmount = 2;
+                    spawnAmount = 2;
                     break;
             }
-            Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(MouthDogAI), SpawnAmount, SpawnLocation.Vent, true, false));
+            PresetEnemiesToSpawn.Add(new EnemySpawnInfo(typeof(MouthDogAI), spawnAmount, SpawnLocation.Vent, true, false));
         }
 
         //Spawns Giants outside .-.
         public static void TheRumbling()
         {
-            string LevelName = Variables.CurrentLevel.sceneName;
-            int SpawnAmount = 0;
+            var levelName = CurrentLevel.sceneName;
+            var spawnAmount = 0;
 
-            switch (LevelName)
+            switch (levelName)
             {
                 case "Titan":
                 case "March":
                 case "Offense":
                 case "Vow":
-                    SpawnAmount = 8;
+                    spawnAmount = 8;
                     break;
 
                 case "Rend":
                 case "Dine":
-                    SpawnAmount = 10;
+                    spawnAmount = 10;
                     break;
 
                 case "Experimentation":
-                    SpawnAmount = 6;
+                    spawnAmount = 6;
                     break;
 
                 default:
-                    SpawnAmount = 8;
+                    spawnAmount = 8;
                     break;
             }
-            Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(ForestGiantAI), SpawnAmount, SpawnLocation.Outside, false, false));
+            PresetEnemiesToSpawn.Add(new EnemySpawnInfo(typeof(ForestGiantAI), spawnAmount, SpawnLocation.Outside, false, false));
         }
 
         //public static void SpawnDogsInside(int amount)
@@ -269,28 +270,28 @@ namespace BrutalCompanyPlus.BCP
         //Spawns Springmen outside and collects instanceID to use in Harmony Patch
         public static void InsideOutEnemies()
         {
-            Variables.InsideOutOwnership = true;
+            InsideOutOwnership = true;
 
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
-                EnemyAI SpawnedSpring = SpawnEnemyOutside(typeof(SpringManAI), true);
-                Variables.SpawnedInsideOutID.Add(SpawnedSpring.GetInstanceID());
+                var spawnedSpring = SpawnEnemyOutside(typeof(SpringManAI), true);
+                SpawnedInsideOutID.Add(spawnedSpring.GetInstanceID());
             }
         }
 
         public static void SetLightningStrikeInterval()
         {
-            Variables.lightningStrikeInterval = UnityEngine.Random.Range(0f, 10f);
+            LightningStrikeInterval = Random.Range(0f, 10f);
         }
 
         //(testing) New event idea to force lightning to strike rapidly, though it does cause intense server lag
         public static void LightningStrikeRandom()
         {
-            if (Variables.Smite_outsideNodes == null || Variables.Smite_outsideNodes.Length == 0)
+            if (SmiteOutsideNodes == null || SmiteOutsideNodes.Length == 0)
             {
-                Variables.mls.LogError("Smite_outsideNodes is null or empty.");
+                Mls.LogError("Smite_outsideNodes is null or empty.");
                 InitializeSmiteOutsideNodes(); // Attempt to initialize if not done already
-                if (Variables.Smite_outsideNodes == null || Variables.Smite_outsideNodes.Length == 0)
+                if (SmiteOutsideNodes == null || SmiteOutsideNodes.Length == 0)
                 {
                     return;
                 }
@@ -299,16 +300,16 @@ namespace BrutalCompanyPlus.BCP
             try
             {
                 Vector3 vector;
-                if (Variables.Smite_seed.Next(0, 100) < 60 && (Variables.randomThunderTime - Variables.timeAtLastStrike) * (float)TimeOfDay.Instance.currentWeatherVariable < 3f)
+                if (SmiteSeed.Next(0, 100) < 60 && (RandomThunderTime - TimeAtLastStrike) * TimeOfDay.Instance.currentWeatherVariable < 3f)
                 {
-                    vector = Variables.lastRandomStrikePosition;
+                    vector = LastRandomStrikePosition;
                 }
                 else
                 {
-                    int num = Variables.Smite_seed.Next(0, Variables.Smite_outsideNodes.Length);
-                    vector = Variables.Smite_outsideNodes[num].transform.position;
-                    vector = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(vector, 15f, Variables.Smite_navHit, Variables.Smite_seed, -1);
-                    Variables.lastRandomStrikePosition = vector;
+                    var num = SmiteSeed.Next(0, SmiteOutsideNodes.Length);
+                    vector = SmiteOutsideNodes[num].transform.position;
+                    vector = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(vector, 15f, SmiteNavHit, SmiteSeed);
+                    LastRandomStrikePosition = vector;
                 }
 
                 if (StartOfRound.Instance.shipHasLanded)
@@ -318,50 +319,50 @@ namespace BrutalCompanyPlus.BCP
             }
             catch (Exception ex)
             {
-                Variables.mls.LogError($"Error in LightningStrikeRandom: {ex.Message}\nStack Trace: {ex.StackTrace}");
+                Mls.LogError($"Error in LightningStrikeRandom: {ex.Message}\nStack Trace: {ex.StackTrace}");
                 BcpLogger.Log($"Error in LightningStrikeRandom: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
         }
 
         public static void InitializeSmiteOutsideNodes()
         {
-            Variables.Smite_outsideNodes = GameObject.FindGameObjectsWithTag("OutsideAINode");
+            SmiteOutsideNodes = GameObject.FindGameObjectsWithTag("OutsideAINode");
 
-            if (Variables.Smite_outsideNodes != null && Variables.Smite_outsideNodes.Length > 0)
+            if (SmiteOutsideNodes != null && SmiteOutsideNodes.Length > 0)
             {
-                Variables.mls.LogInfo($"Found {Variables.Smite_outsideNodes.Length} OutsideAINode objects.");
+                Mls.LogInfo($"Found {SmiteOutsideNodes.Length} OutsideAINode objects.");
             }
             else
             {
-                Variables.mls.LogError("No OutsideAINode objects found in the scene.");
+                Mls.LogError("No OutsideAINode objects found in the scene.");
             }
         }
 
         //Looped from Update() to spawn landmines under players feet if on planet surface (this could be tweaked)
         public static void SurfaceExplosionLoop()
         {
-            if (Variables.slSpawnTimer > 0f)
+            if (SlSpawnTimer > 0f)
             {
-                Variables.slSpawnTimer = (float)UnityEngine.Random.Range(-4, -1);
-                PlayerControllerB[] allPlayerScripts = StartOfRound.Instance.allPlayerScripts;
-                PlayerControllerB playerControllerB = allPlayerScripts[UnityEngine.Random.Range(0, allPlayerScripts.Length)];
+                SlSpawnTimer = Random.Range(-4, -1);
+                var allPlayerScripts = StartOfRound.Instance.allPlayerScripts;
+                var playerControllerB = allPlayerScripts[Random.Range(0, allPlayerScripts.Length)];
                 if (playerControllerB != null && !playerControllerB.isInHangarShipRoom && !playerControllerB.isInsideFactory && playerControllerB.isGroundedOnServer)
                 {
                     if (Vector3.Distance(playerControllerB.transform.position, new Vector3(9.33f, 5.2f, 1021f)) < 1f)
                     {
-                        Variables.slSpawnTimer = 1f;
+                        SlSpawnTimer = 1f;
                         return;
                     }
-                    GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(Variables.landmine, playerControllerB.transform.position, Quaternion.identity);
+                    var gameObject = Object.Instantiate(Variables.Landmine, playerControllerB.transform.position, Quaternion.identity);
                     gameObject.transform.position = playerControllerB.transform.position;
-                    Variables.mls.LogWarning(playerControllerB.transform.position);
+                    Mls.LogWarning(playerControllerB.transform.position);
                     gameObject.GetComponent<NetworkObject>().Spawn(true);
-                    Variables.objectsToCleanUp.Add(gameObject);
+                    ObjectsToCleanUp.Add(gameObject);
                 }
             }
             else
             {
-                Variables.slSpawnTimer += Time.deltaTime;
+                SlSpawnTimer += Time.deltaTime;
             }
         }
 
@@ -369,75 +370,75 @@ namespace BrutalCompanyPlus.BCP
         public static void HungerGamesLoop()
         {
             //Change Tribute based on events
-            if (Variables.sacrificeTargetChangeTimer >= Variables.TargetChangeInterval ||
-                Variables.SacrificeTarget == null ||
-                !Variables.SacrificeTarget.isPlayerControlled)
+            if (SacrificeTargetChangeTimer >= TargetChangeInterval ||
+                SacrificeTarget == null ||
+                !SacrificeTarget.isPlayerControlled)
             {
-                Functions.PickNewSacrificeTarget();
-                Variables.sacrificeTargetChangeTimer = 0;
+                PickNewSacrificeTarget();
+                SacrificeTargetChangeTimer = 0;
             }
 
             //Apply the effect if the target is inside the factory
-            if (Variables.SacrificeTarget != null && Variables.SacrificeTarget.isInsideFactory)
+            if (SacrificeTarget != null && SacrificeTarget.isInsideFactory)
             {
-                Functions.ApplySacrificeEffect();
-                Variables.Tribute = false;
+                ApplySacrificeEffect();
+                Tribute = false;
             }
         }
 
         public static void PickNewSacrificeTarget()
         {
-            PlayerControllerB[] allPlayers = StartOfRound.Instance.allPlayerScripts;
+            var allPlayers = StartOfRound.Instance.allPlayerScripts;
             if (allPlayers.Length > 0)
             {
-                Variables.SacrificeTarget = allPlayers[UnityEngine.Random.Range(0, allPlayers.Length)];
+                SacrificeTarget = allPlayers[Random.Range(0, allPlayers.Length)];
             }
         }
 
         public static void ApplySacrificeEffect()
         {
-            if (!Variables.SacrificeTarget.isPlayerDead)
+            if (!SacrificeTarget.isPlayerDead)
             {
-                Variables.SacrificeTarget.DamagePlayerFromOtherClientServerRpc(500, new Vector3(), (int)GameNetworkManager.Instance.localPlayerController.playerClientId);
-                HUDManager.Instance.AddTextToChatOnServer($"<color=purple>{Variables.SacrificeTarget.playerUsername}</color> <color=orange>volunteered as Tribute!</color>", -1);
+                SacrificeTarget.DamagePlayerFromOtherClientServerRpc(500, new Vector3(), (int)GameNetworkManager.Instance.localPlayerController.playerClientId);
+                HUDManager.Instance.AddTextToChatOnServer($"<color=purple>{SacrificeTarget.playerUsername}</color> <color=orange>volunteered as Tribute!</color>");
             }
         }
 
         //Rebuilt Mouthdog function to align with The Beast Inside Function
-        public static void EnterLunge(MouthDogAI __instance, Ray ray, RaycastHit rayHit, RoundManager roundManager)
+        public static void EnterLunge(MouthDogAI Instance, Ray Ray, RaycastHit RayHit, RoundManager RoundManager)
         {
-            __instance.SwitchToBehaviourState(3);
-            __instance.endingLunge = false;
-            ray = new Ray(__instance.transform.position + Vector3.up, __instance.transform.forward);
+            Instance.SwitchToBehaviourState(3);
+            Instance.endingLunge = false;
+            Ray = new Ray(Instance.transform.position + Vector3.up, Instance.transform.forward);
             Vector3 vector;
-            if (Physics.Raycast(ray, out rayHit, 17f, StartOfRound.Instance.collidersAndRoomMask))
+            if (Physics.Raycast(Ray, out RayHit, 17f, StartOfRound.Instance.collidersAndRoomMask))
             {
-                vector = rayHit.point;
+                vector = RayHit.point;
             }
             else
             {
-                vector = ray.GetPoint(17f);
+                vector = Ray.GetPoint(17f);
             }
-            vector = roundManager.GetNavMeshPosition(vector, default(NavMeshHit), 5f, -1);
-            __instance.SetDestinationToPosition(vector, false);
-            __instance.agent.speed = 13f;
+            vector = RoundManager.GetNavMeshPosition(vector);
+            Instance.SetDestinationToPosition(vector);
+            Instance.agent.speed = 13f;
         }
 
-        public static Vector3 GetNearbyLocation(Vector3 baseLocation)
+        public static Vector3 GetNearbyLocation(Vector3 BaseLocation)
         {
-            float offsetDistance = 10.0f;
-            Vector3 offset = UnityEngine.Random.insideUnitSphere * offsetDistance;
-            return baseLocation + offset;
+            var offsetDistance = 10.0f;
+            var offset = Random.insideUnitSphere * offsetDistance;
+            return BaseLocation + offset;
         }
 
         //Custom function to allow Blobs to open doors, in theory this would work with any enemy that can't open doors
         public static void OpenDoors()
         {
-            DoorLock[] doors = UnityEngine.Object.FindObjectsOfType<DoorLock>();
+            var doors = Object.FindObjectsOfType<DoorLock>();
             foreach (var door in doors)
             {
-                Collider[] hitColliders = Physics.OverlapSphere(door.transform.position, 2f);
-                bool blobNearDoor = false;
+                var hitColliders = Physics.OverlapSphere(door.transform.position, 2f);
+                var blobNearDoor = false;
                 foreach (var hitCollider in hitColliders)
                 {
                     if (hitCollider.CompareTag("Enemy"))
@@ -449,8 +450,8 @@ namespace BrutalCompanyPlus.BCP
 
                 if (blobNearDoor)
                 {
-                    Type doorlock = typeof(DoorLock);
-                    FieldInfo isDoorOpen = doorlock.GetField("isDoorOpened", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var doorlock = typeof(DoorLock);
+                    var isDoorOpen = doorlock.GetField("isDoorOpened", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (isDoorOpen == null)
                     {
                         return;
@@ -465,79 +466,79 @@ namespace BrutalCompanyPlus.BCP
         }
 
         //Log the current level SpawnableEnemyWithRarity List
-        public static void LogEnemyList(SelectableLevel level)
+        public static void LogEnemyList(SelectableLevel Level)
         {
-            if (level != null && level.Enemies.Count > 0)
+            if (Level != null && Level.Enemies.Count > 0)
             {
-                foreach (var enemy in level.Enemies)
+                foreach (var enemy in Level.Enemies)
                 {
-                    BcpLogger.Log($"{enemy.enemyType.enemyName} with a Rarity of {enemy.rarity} on {level.sceneName}");
+                    BcpLogger.Log($"{enemy.enemyType.enemyName} with a Rarity of {enemy.rarity} on {Level.sceneName}");
                 }
             }
         }
 
         //Clone the current level SpawnableEnemyWithRarity List
-        public static void CloneEnemyList(SelectableLevel level)
+        public static void CloneEnemyList(SelectableLevel Level)
         {
-            if (level != null && level.Enemies.Count > 0)
+            if (Level != null && Level.Enemies.Count > 0)
             {
-                foreach (var enemy in level.Enemies)
+                foreach (var enemy in Level.Enemies)
                 {
-                    Variables.OriginalEnemyListWithRarity.Add(enemy);
-                    BcpLogger.Log($"{enemy.enemyType.enemyName} with a Rarity of {enemy.rarity} on {level.sceneName}");
+                    OriginalEnemyListWithRarity.Add(enemy);
+                    BcpLogger.Log($"{enemy.enemyType.enemyName} with a Rarity of {enemy.rarity} on {Level.sceneName}");
                 }
             }
         }
 
         //Reset the previous level back to its original state involving SpawnableEnemyWithRarity List
-        public static void SetEnemyListOriginalState(SelectableLevel level)
+        public static void SetEnemyListOriginalState(SelectableLevel Level)
         {
-            if (level != null && Variables.OriginalEnemyListWithRarity.Count > 0)
+            if (Level != null && OriginalEnemyListWithRarity.Count > 0)
             {
-                level.Enemies.Clear();
-                foreach (var enemy in Variables.OriginalEnemyListWithRarity)
+                Level.Enemies.Clear();
+                foreach (var enemy in OriginalEnemyListWithRarity)
                 {
-                    level.Enemies.Add(enemy);
-                    BcpLogger.Log($"Reverting {enemy.enemyType.enemyName} with a Rarity of {enemy.rarity} on {level.sceneName}");
+                    Level.Enemies.Add(enemy);
+                    BcpLogger.Log($"Reverting {enemy.enemyType.enemyName} with a Rarity of {enemy.rarity} on {Level.sceneName}");
                 }
-                Variables.OriginalEnemyListWithRarity.Clear();
+                OriginalEnemyListWithRarity.Clear();
             }
         }
 
         //Could prolly be better c:
         public static void CleanUpAllVariables()
         {
-            Variables.DogForceOwnership = false;
-            Variables.InsideOutOwnership = false;
+            DogForceOwnership = false;
+            InsideOutOwnership = false;
 
-            Variables.BlobsHaveEvolved = false;
-            Variables.InstaJester = false;
+            BlobsHaveEvolved = false;
+            InstaJester = false;
 
             Variables.TheRumbling = false;
 
-            Variables.SmiteEnabled = false;
+            SmiteEnabled = false;
 
-            Variables.SacrificeTarget = null;
-            Variables.Tribute = false;
+            SacrificeTarget = null;
+            Tribute = false;
 
-            Variables.SpawnInsideOut = false;
+            SpawnInsideOut = false;
 
-            Variables.WaitUntilPlayerInside = false;
+            WaitUntilPlayerInside = false;
 
-            Variables.Landed = false;
+            Landed = false;
 
-            Variables.sacrificeTargetChangeTimer = 0;
-            Variables.surpriseLandmines = -1;
-
-
-            Variables.SpawnedInsideOutID.Clear();
-            Variables.presetEnemiesToSpawn.Clear();
-            Variables.DogsSpawnedInside.Clear();
+            SacrificeTargetChangeTimer = 0;
+            SurpriseLandmines = -1;
 
 
-            foreach (var aiType in Variables.aiPresence.Keys.ToList())
+            SpawnedInsideOutID.Clear();
+            PresetEnemiesToSpawn.Clear();
+            DogsSpawnedInside.Clear();
+
+
+            foreach (var aiType in AIPresence.Keys.ToList())
             {
-                Variables.aiPresence[aiType] = false;
+                AIPresence[aiType] = false;
             }
         }
 
