@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using GameNetcodeStuff;
+using System.Linq;
 
 namespace BrutalCompanyPlus.BCP
 {
@@ -88,6 +89,24 @@ namespace BrutalCompanyPlus.BCP
 
         public static ManualLogSource mls;
 
+        public static Dictionary<SelectableLevel, List<SpawnableEnemyWithRarity>> originalEnemyLists = new Dictionary<SelectableLevel, List<SpawnableEnemyWithRarity>>();
+
+        public static Dictionary<Type, bool> defaultRemovableEnemyTypes = new Dictionary<Type, bool>
+        {
+            { typeof(BlobAI), false },
+            { typeof(CentipedeAI), false },
+            { typeof(CrawlerAI), false },
+            { typeof(DressGirlAI), false },
+            { typeof(FlowermanAI), false },
+            { typeof(HoarderBugAI), false },
+            { typeof(JesterAI), false },
+            { typeof(PufferAI), false },
+            { typeof(SandSpiderAI), false },
+            { typeof(SpringManAI), false },
+            { typeof(NutcrackerEnemyAI), false },
+            { typeof(MaskedPlayerEnemy), false }
+        };
+
         public static Dictionary<Type, bool> aiPresence = new Dictionary<Type, bool>
         {
             { typeof(BaboonBirdAI), false },
@@ -100,7 +119,6 @@ namespace BrutalCompanyPlus.BCP
             { typeof(ForestGiantAI), false },
             { typeof(HoarderBugAI), false },
             { typeof(JesterAI), false },
-            //{ typeof(LassoManAI), false },
             { typeof(MouthDogAI), false },
             { typeof(PufferAI), false },
             { typeof(RedLocustBees), false },

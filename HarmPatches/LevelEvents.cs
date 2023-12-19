@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using BrutalCompanyPlus.BCP;
 using UnityEngine;
+using System.Reflection.Emit;
 
 namespace BrutalCompanyPlus.HarmPatches
 {
@@ -20,17 +21,6 @@ namespace BrutalCompanyPlus.HarmPatches
                 return true;
             }
 
-            //Set previous modified enemy list back to original state
-            //if (Variables.CurrentLevel != null)
-            //{
-            //    Functions.SetEnemyListOriginalState(Variables.CurrentLevel);
-            //}
-
-            //Get the original enemy list and store it before modifying
-            //Functions.CloneEnemyList(newLevel);
-
-            Variables.CurrentLevel = newLevel;
-
             //Variable and Object Cleanup
             Plugin.CleanupAndResetAI();
 
@@ -39,6 +29,16 @@ namespace BrutalCompanyPlus.HarmPatches
 
             //Configurable option to add all enemies to the level for spawn chance
             Plugin.AddMissingAIToNewLevel(newLevel);
+
+            //Plugin.StoreOriginalEnemyList(newLevel); // Store the enemy list
+
+            //Set previous modified enemy list back to original state
+            //if (Variables.CurrentLevel != null)
+            //{
+            //    Plugin.RestoreOriginalEnemyList(Variables.CurrentLevel);
+            //}
+
+            Variables.CurrentLevel = newLevel;
 
             //Functions.LogEnemyList(newLevel);
 

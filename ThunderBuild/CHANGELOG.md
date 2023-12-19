@@ -1,26 +1,49 @@
-## Version 1.0.0
+<details>
+  <summary>Version 1.0.0 (click to expand)</summary>
+
+  ## Version 1.0.0
 - Adjusted Quota Settings"
 	Deadline is now set to 4 Days
 	Starting Quota is now 400$
 
 - Fixed "Spontanious Combustion Event" landmines will now disable when flipping the lever to take the ship into orbit.
-  - This should allow players to play the event out and also have a chance of leaving with the ship and not explode during the takeoff.
+- This should allow players to play the event out and also have a chance of leaving with the ship and not explode during the takeoff.
+</details>
+ 
+<details>
+  <summary>Version 1.1.0 (click to expand)</summary>
   
 ## Version 1.1.0
 - 	New Event Added: They have EVOLVED?!? (Blobs have evolved to open doors and be more aggresive)
-
+</details>
+ 
+<details>
+  <summary>Version 1.2.0 (click to expand)</summary>
+  
 ##  Version 1.2.0
 - 	New Event Added: Pop Goes The... HOLY FUC- (Do I really need to add a description)
-
+</details>
+ 
+<details>
+  <summary>Version 1.2.1 (click to expand)</summary>
+  
 ##  Version 1.2.1
 - 	Fixed an issue with Quota Settings not applying!
+</details>
 
+<details>
+  <summary>Version 1.2.2 (click to expand)</summary>
+  
 ##  Version 1.2.2
 - 	Fix an issue where not all AI spawned on each level
 -	Fix an issue where Blobs never opened doors
 -	Now when a turret spawns on the ship, it will disable itself when you pull the lever
 	- This was implemented to prevent the turret spamming shots in orbit mode.
-	
+</details>
+ 
+<details>
+  <summary>Version 2.0.0 (click to expand)</summary>
+  
 ##  Version 2.0.0
 - Massive code cleanup, optimization.
 	- This was done to allow me to eventually allow a config option to customize your own experience!
@@ -30,37 +53,65 @@
 - Redesigned Level event names, print outs, rarity chances.
 - Adjust moon heat dissipation when no longer on moon
 - Removed usless events, codes, and other things causing minor lag or unwanted resource loss.
-
+</details>
+ 
+<details>
+  <summary>Version 2.0.1 (click to expand)</summary>
+  
 ##  Version 2.0.1
 - Fixed Event Randomizer bug ( Sorry :p )	
-
+</details>
+ 
+<details>
+  <summary>Version 2.1.0 (click to expand)</summary>
+  
 ##  Version 2.1.0
 - Added a stable randomized rarity on Factory enemy spawns based on Heat level
 	- This will fix any previous issues where past events lingered into new events
 	- This will SOON be a fully customizable option via Config when added (You choose what can spawn during heat %)
 	- Small tweaks with old code that was useless
-	
+</details>
+ 
+<details>
+  <summary>Version 2.2.0 (click to expand)</summary>	
+  
 ##  Version 2.2.0
 Add New Events:
 - The Rumbling (We are gunna need a Levi!)
 	- Spawns a ton of giants that have lower chase speed
 - The Beast Inside (Be vewy vewy quiet)
 	- Spawns dogs inside the Factory (this hurt to code and sync with others without sharing the mod to all clients, but it works c:)
-	
+</details>
+ 
+<details>
+  <summary>Version 2.2.1 (click to expand)</summary>
+  
 ##  Version 2.2.1
 - Minor update to Initialize Component on Start() instead of onDestroy()
 	- This will align with new updates coming to bepinex
-	
+</details>
+ 
+<details>
+  <summary>Version 2.2.2 (click to expand)</summary>
+  
 ##  Version 2.2.2
 - Fixed a bug causing some events to not trigger properly
-
+</details>
+ 
+<details>
+  <summary>Version 2.3.0 (click to expand)</summary>
+  
 ##  Version 2.3.0
 Add New Event:
 - The Hunger Games (You don't want to participate)
 
 - Fixed a bug causing wrong enemies to spawn for Events like "The Rumbling" and "The Beasts Inside" on Paid Moons
 	- Adjusted spawn rates on those events as well
-	
+</details>
+ 
+<details>
+  <summary>Version 3.0.0 (click to expand)</summary>
+  
 ##  Version 3.0.0
 Add New Event:
 - Inside Out ( You will find out c: )
@@ -79,7 +130,11 @@ Add New Event:
 		- MaxScrap
 		- MinTotalScrapValue
 		- MaxTotalScrapValue
-		
+</details>
+ 
+<details>
+  <summary>Version 3.1.0 (click to expand)</summary>
+  
 ##  Version 3.1.0
 - Redesigned config function using Bepinex Config Manager
 	- This will allow better syncing and easier updates with addition config options in the future
@@ -89,7 +144,11 @@ Add New Event:
 - Adjusted spawn count for "The Rumbling" depending on the moon
 
 **Config is now in the Bepinex Config Folder of your Profile**
-
+</details>
+ 
+<details>
+  <summary>Version 3.2.0 (click to expand)</summary>
+  
 ##  Version 3.2.0
 - Added new config options
 	- EnableAllEnemy ( This will add every enemy type to each moon as a spawn chance )
@@ -104,7 +163,11 @@ Add New Event:
 - Chenged spawn rates on Rumbling and Beast Inside events
 
 - Added new Logo to Readme credit to (Discord ```lilboi__```)
-
+</details>
+ 
+<details>
+  <summary>Version 3.3.0 (click to expand)</summary>
+  
 ## Version 3.3.0
 - New Config Options
 
@@ -125,6 +188,103 @@ Add New Event:
 	
 - **Added New V45 Enemies**
   - Now included in the "All Enemy Spawn Chance" variable.
+</details>
   
-  ## Version 3.3.1
+  <details>
+  <summary>Version 3.3.1 (click to expand)</summary>
+  
+ ## Version 3.3.1
   - Fixed a bug with Event Rarity always being None c:
+</details>
+  
+<details>
+  <summary>Version 3.4.0 (click to expand)</summary>
+  
+## Version 3.4.0
+
+### Added Features
+
+- **Event Chance Rarity**
+  - Events now have a weighted chance of occurring, allowing you to adjust their rarity.
+  - Chance values range from `0` (never) to `100` (highest chance).
+  - Events are no longer simple "True" or "False" toggles.
+
+### New Configurable Options
+
+#### Spawn Chance Values
+  - **FactoryStartOfDaySpawnChance**: Adjust the Factory enemy spawn chance at the start of the day. Set to `-1` to use Brutal's default value. (Vanilla default is around 2-5, depending on the moon).
+  - **FactoryMidDaySpawnChance**: Adjust the Factory enemy spawn chance at midday. Set to `-1` for Brutal's default. (Vanilla default is around 5-10, depending on the moon).
+  - **FactoryEndOfDaySpawnChance**: Adjust the Factory enemy spawn chance at the end of the day. Set to `-1` for Brutal's default. (Vanilla default is around 10-15, depending on the moon).
+  - **OutsideStartOfDaySpawnChance**: Adjust the Outside enemy spawn chance at the start of the day. Set to `-1` for the default value. (Vanilla is `0`).
+  - **OutsideMidDaySpawnChance**: Adjust the Outside enemy spawn chance at midday. Set to `-1` for the default value. (Vanilla is `0.5`).
+  - **OutsideEndOfDaySpawnChance**: Adjust the Outside enemy spawn chance at the end of the day. Set to `-1` for the default value. (Vanilla is `5`).
+
+### Adjustments and Improvements
+
+- Refined the Enemy Spawn Rate Config to function as intended.
+- Updated the **ScrapSettings** config:
+  - The values set now add onto the existing game values.
+  - Setting these values to `0` will use the Vanilla default rates.
+  - Note: Setting values higher than `0` adds to the existing Vanilla value depending on the moon, so adjust accordingly.
+  - Default values have been adjusted. You may need to update these if you launched the mod before this update.
+</details>
+   
+## Version 3.5.0
+
+### New Features
+
+- **Added New Events:**
+<details>
+  <summary>Outside the Box</summary>
+	Spawns Jesters Outside
+</details>
+
+<details>
+  <summary>Shadow Realm</summary>
+	Spawns several Bracken outside ( 50% chance to add fog for fun c: )
+</details>
+
+<details>
+  <summary>Guards</summary>
+	Nutcracker will spawn outside near the ship
+</details>
+
+  - *Note: Removed `Bad Planet` & `Chaos Company` due to their overpowering and non-enjoyable nature.*
+
+### Event Modifications
+
+- **Changes to Existing Events:**
+  - `They have Evolved`: Now spawns an additional blob outside.
+  - `Hoarder Town`: Now spawns Hoarder bugs both inside and outside.
+  - `They are Shy`: Now spawns Spring and Bracken inside and outside.
+  - Several events have been renamed.
+  - Events no longer modify rarity or the enemy list, meaning:
+    - Events that previously spawned only a certain enemy type will now spawn various enemies.
+    - This change promotes better integration with additional mods featuring custom enemies.
+
+### Gameplay Adjustments
+
+- **Moon Heat Mechanics:**
+  - Moon Heat will now reset when you wipe the save file or get fired.
+  - Moon Heat no longer affects spawn rates of enemies.
+  - Moon Heat now influences weather type as follows:
+    - `>=20 & <40`: Rainy
+    - `>=40 & <60`: Foggy
+    - `>=60 & <80`: Flooded
+    - `>=80 & <100`: Stormy
+    - `>=100`: Eclipsed
+    - *Configurable options for this feature will be added in a future update.*
+
+- **Enemy Spawn Rates:**
+  - Adjusted outside enemy spawn rates for a more balanced experience throughout the day. (Note: Current lack of outside enemies will be addressed soon.)
+  - Inside enemy spawn rates have been fine-tuned for a smoother experience. (The reintroduction of configurable spawn rates is under consideration.)
+
+### Configuration Updates
+
+- **Deprecated Options:**
+  - Temporarily removed `FactorySpawnChance` and `OutsideSpawnChance` config settings.
+
+- **New Config Option:**
+  - Added an option to disable rarity modifications, enhancing compatibility with other mods or for those preferring vanilla spawn rarity. 
+    - Note: This setting can be overridden by specific events.
+  

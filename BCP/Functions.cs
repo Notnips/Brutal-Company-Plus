@@ -345,7 +345,7 @@ namespace BrutalCompanyPlus.BCP
                 Variables.slSpawnTimer = (float)UnityEngine.Random.Range(-4, -1);
                 PlayerControllerB[] allPlayerScripts = StartOfRound.Instance.allPlayerScripts;
                 PlayerControllerB playerControllerB = allPlayerScripts[UnityEngine.Random.Range(0, allPlayerScripts.Length)];
-                if (playerControllerB != null && !playerControllerB.isInHangarShipRoom && !playerControllerB.isInsideFactory && playerControllerB.isGroundedOnServer)
+                if (playerControllerB != null && !playerControllerB.isInHangarShipRoom && !playerControllerB.isInsideFactory)
                 {
                     if (Vector3.Distance(playerControllerB.transform.position, new Vector3(9.33f, 5.2f, 1021f)) < 1f)
                     {
@@ -398,8 +398,8 @@ namespace BrutalCompanyPlus.BCP
         {
             if (!Variables.SacrificeTarget.isPlayerDead)
             {
-                Variables.SacrificeTarget.DamagePlayerFromOtherClientServerRpc(500, new Vector3(), (int)GameNetworkManager.Instance.localPlayerController.playerClientId);
                 HUDManager.Instance.AddTextToChatOnServer($"<color=purple>{Variables.SacrificeTarget.playerUsername}</color> <color=orange>volunteered as Tribute!</color>", -1);
+                Variables.SacrificeTarget.DamagePlayerFromOtherClientServerRpc(500, new Vector3(), (int)GameNetworkManager.Instance.localPlayerController.playerClientId);
             }
         }
 

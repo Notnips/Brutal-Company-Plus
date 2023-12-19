@@ -15,6 +15,8 @@ namespace BrutalCompanyPlus
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        public static ConfigEntry<bool> VanillaRaritySettings { get; private set; }
+
         // Configuration for Factory Enemies Spawn Chance
         public static ConfigEntry<float> FactoryStartOfDaySpawnChance { get; private set; }
         public static ConfigEntry<float> FactoryMidDaySpawnChance { get; private set; }
@@ -79,6 +81,10 @@ namespace BrutalCompanyPlus
             //Depreciated Config Elements
             UpdateConfigurations();
             RemoveConfigSection(configFilePath, "EventEnabledConfig");
+            RemoveConfigSection(configFilePath, "EnemySpawnSettings.Factory");
+            RemoveConfigSection(configFilePath, "EnemySpawnSettings.Outside");
+            RemoveConfigLines(configFilePath, "Chaos", "BadPlanet");
+
         }
 
         void Start()
@@ -141,6 +147,32 @@ namespace BrutalCompanyPlus
         }
 
         string configFilePath = Path.Combine(BepInEx.Paths.ConfigPath, "BrutalCompanyPlus.cfg");
+
+        public void RemoveConfigLines(string filePath, params string[] variableNames)
+        {
+            try
+            {
+                var lines = File.ReadAllLines(filePath).ToList();
+                var newLines = new List<string>();
+
+                foreach (var line in lines)
+                {
+                    bool lineContainsVariable = variableNames.Any(variableName => line.Trim().StartsWith(variableName + " ="));
+
+                    if (!lineContainsVariable)
+                    {
+                        newLines.Add(line); // Keep line if it doesn't contain the variable
+                    }
+                }
+
+                File.WriteAllLines(filePath, newLines);
+            }
+            catch (Exception ex)
+            {
+                BcpLogger.Log($"Error occurred: {ex.Message}");
+            }
+        }
+
         public void RemoveConfigSection(string filePath, string sectionName)
         {
             try
@@ -181,32 +213,32 @@ namespace BrutalCompanyPlus
             // Initialize default rarities for ExperimentationLevel
             var experimentationLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 50 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 2 },
-                { "Puffer", 40 }, { "Nutcracker", 25 }, { "Spring", 25 }, { "Jester", 3 }, { "Masked", 5 }, { "LassoMan", 1 }
+                { "Centipede", 50 }, { "Bunker Spider", 75 }, { "Hoarding bug", 80 }, { "Flowerman", 30 }, { "Crawler", 15 }, { "Blob", 25 }, { "Girl", 2 },
+                { "Puffer", 10 }, { "Nutcracker", 15 }, { "Spring", 5 }, { "Jester", 1 }, { "Masked", 1 }, { "LassoMan", 1 }
             };
             Variables.DefaultEnemyRarities["ExperimentationLevel"] = experimentationLevelRarities;
 
             // Initialize default rarities for AssuranceLevel
             var assuranceLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 2 },
-                { "Puffer", 40 }, { "Nutcracker", 25 }, { "Spring", 25 }, { "Jester", 3 }, { "Masked", 10 }, { "LassoMan", 1 }
+                { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 15 }, { "Blob", 25 }, { "Girl", 2 },
+                { "Puffer", 40 }, { "Nutcracker", 15 }, { "Spring", 25 }, { "Jester", 3 }, { "Masked", 3 }, { "LassoMan", 1 }
             };
             Variables.DefaultEnemyRarities["AssuranceLevel"] = assuranceLevelRarities;
 
             // Initialize default rarities for "VowLevel": 
             var vowLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 10 },
-                { "Puffer", 40 }, { "Nutcracker", 25 }, { "Spring", 40 }, { "Jester", 15 }, { "Masked", 20 }, { "LassoMan", 0 }
+                { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 5 },
+                { "Puffer", 40 }, { "Nutcracker", 20 }, { "Spring", 40 }, { "Jester", 15 }, { "Masked", 10 }, { "LassoMan", 0 }
             };
             Variables.DefaultEnemyRarities["VowLevel"] = vowLevelRarities;
 
             // Initialize default rarities for "OffenseLevel": 
             var offenseLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 10 },
-                { "Puffer", 40 }, { "Nutcracker", 25 }, { "Spring", 40 }, { "Jester", 15 }, { "Masked", 20 }, { "LassoMan", 0 }
+                { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 5 },
+                { "Puffer", 40 }, { "Nutcracker", 20 }, { "Spring", 40 }, { "Jester", 15 }, { "Masked", 10 }, { "LassoMan", 0 }
             };
             Variables.DefaultEnemyRarities["OffenseLevel"] = offenseLevelRarities;
 
@@ -214,46 +246,37 @@ namespace BrutalCompanyPlus
             var marchLevelRarities = new Dictionary<string, int>
             {
                 { "Centipede", 50 }, { "Bunker Spider", 40 }, { "Hoarding bug", 50 }, { "Flowerman", 30 }, { "Crawler", 20 }, { "Blob", 25 }, { "Girl", 10 },
-                { "Puffer", 40 }, { "Nutcracker", 25 }, { "Spring", 40 }, { "Jester", 15 }, { "Masked", 20 }, { "LassoMan", 0 }
+                { "Puffer", 40 }, { "Nutcracker", 20 }, { "Spring", 40 }, { "Jester", 15 }, { "Masked", 10 }, { "LassoMan", 0 }
             };
             Variables.DefaultEnemyRarities["MarchLevel"] = marchLevelRarities;
 
             // Initialize default rarities for "RendLevel": 
             var rendLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 35 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 56 }, { "Crawler", 60 }, { "Blob", 40 }, { "Girl", 50 },
-                { "Puffer", 40 }, { "Nutcracker", 60 }, { "Spring", 58 }, { "Jester", 57 }, { "Masked", 50 }, { "LassoMan", 2 }
+                { "Centipede", 35 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 56 }, { "Crawler", 50 }, { "Blob", 40 }, { "Girl", 25 },
+                { "Puffer", 40 }, { "Nutcracker", 30 }, { "Spring", 58 }, { "Jester", 40 }, { "Masked", 10 }, { "LassoMan", 2 }
             };
             Variables.DefaultEnemyRarities["RendLevel"] = rendLevelRarities;
 
             // Initialize default rarities for "DineLevel": 
             var dineLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 35 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 56 }, { "Crawler", 60 }, { "Blob", 40 }, { "Girl", 50 },
-                { "Puffer", 40 }, { "Nutcracker", 60 }, { "Spring", 58 }, { "Jester", 57 }, { "Masked", 50 }, { "LassoMan", 2 }
+                { "Centipede", 35 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 56 }, { "Crawler", 50 }, { "Blob", 40 }, { "Girl", 25 },
+                { "Puffer", 40 }, { "Nutcracker", 30 }, { "Spring", 58 }, { "Jester", 40 }, { "Masked", 10 }, { "LassoMan", 2 }
             };
             Variables.DefaultEnemyRarities["DineLevel"] = dineLevelRarities;
 
             // Initialize default rarities for "TitanLevel": 
             var titanLevelRarities = new Dictionary<string, int>
             {
-                { "Centipede", 35 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 56 }, { "Crawler", 60 }, { "Blob", 40 }, { "Girl", 50 },
-                { "Puffer", 40 }, { "Nutcracker", 60 }, { "Spring", 58 }, { "Jester", 57 }, { "Masked", 50 }, { "LassoMan", 2 }
+                { "Centipede", 35 }, { "Bunker Spider", 25 }, { "Hoarding bug", 30 }, { "Flowerman", 56 }, { "Crawler", 60 }, { "Blob", 40 }, { "Girl", 25 },
+                { "Puffer", 40 }, { "Nutcracker", 30 }, { "Spring", 58 }, { "Jester", 40 }, { "Masked", 10 }, { "LassoMan", 2 }
             };
             Variables.DefaultEnemyRarities["TitanLevel"] = titanLevelRarities;
         }
 
         public void InitializeBCP_ConfigSettings()
         {
-            // Configuration for Factory Enemies
-            FactoryStartOfDaySpawnChance = Config.Bind("EnemySpawnSettings.Factory", "StartOfDaySpawnChance", -1f, "Factory enemy spawn chance at the start of the day. Set to -1 to use Brutals default value. (vanilla is around 2-5 depending on moon)");
-            FactoryMidDaySpawnChance = Config.Bind("EnemySpawnSettings.Factory", "MidDaySpawnChance", -1f, "Factory enemy spawn chance at midday. Set to -1 to use Brutals default value. (vanilla is around 5-10 depending on moon)");
-            FactoryEndOfDaySpawnChance = Config.Bind("EnemySpawnSettings.Factory", "EndOfDaySpawnChance", -1f, "Factory enemy spawn chance at the end of the day. Set to -1 to use Brutals default value. (vanilla is around 10-15 depending on moon)");
-
-            // Configuration for Outside Enemies
-            OutsideStartOfDaySpawnChance = Config.Bind("EnemySpawnSettings.Outside", "StartOfDaySpawnChance", -1f, "Outside enemy spawn chance at the start of the day. Set to -1 to use default value. (vanilla is 0)");
-            OutsideMidDaySpawnChance = Config.Bind("EnemySpawnSettings.Outside", "MidDaySpawnChance", -1f, "Outside enemy spawn chance at midday. Set to -1 to use default value. (vanilla is 0.5)");
-            OutsideEndOfDaySpawnChance = Config.Bind("EnemySpawnSettings.Outside", "EndOfDaySpawnChance", -1f, "Outside enemy spawn chance at the end of the day. Set to -1 to use default value. (vanilla is 5)");
 
             MoonHeatDecreaseRate = Config.Bind("MoonHeatSettings", "MoonHeatDecreaseRate", 10f, "Amount by which moon heat decreases when not visiting the planet");
             MoonHeatIncreaseRate = Config.Bind("MoonHeatSettings", "MoonHeatIncreaseRate", 20f, "Amount by which moon heat increases when landing back on the same planet");
@@ -263,6 +286,7 @@ namespace BrutalCompanyPlus
             EnableLandmineModifications = Config.Bind("MapObjectModificationSettings", "EnableLandmineModifications", true, "Enable modifications to landmine spawn rates on every moon, False would default to game logic");
             LandmineSpawnRate = Config.Bind("MapObjectModificationSettings", "LandmineSpawnRate", 30f, "Default spawn amount for landmines on every moon");
 
+            VanillaRaritySettings = Config.Bind("CustomLevelRarities", "VanillaRaritySettings", false, "If TRUE this will DISABLE overwriting Rarity Values for Factory Enemies");
             ExperimentationLevelRarities = Config.Bind("CustomLevelRarities", "Experimentation", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Experimentation (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
             AssuranceLevelRarities = Config.Bind("CustomLevelRarities", "Assurance", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Assurance (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
             VowLevelRarities = Config.Bind("CustomLevelRarities", "Vow", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Vow (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
@@ -282,31 +306,32 @@ namespace BrutalCompanyPlus
             StartingQuota = Config.Bind("QuotaSettings", "StartingQuota", 400, "Starting quota amount in a new session");
             BaseIncrease = Config.Bind("QuotaSettings", "BaseIncrease", 275f, "Quota increase after meeting the previous quota");
 
-            MinScrap = Config.Bind("ScrapSettings", "MinScrap", 15, "Minimum scraps that can spawn on each moon");
-            MaxScrap = Config.Bind("ScrapSettings", "MaxScrap", 75, "Maximum scraps that can spawn on each moon");
-            MinTotalScrapValue = Config.Bind("ScrapSettings", "MinTotalScrapValue", 1500, "Minimum total scrap value on the moon");
+            MinScrap = Config.Bind("ScrapSettings", "MinScrap", 10, "Minimum scraps that can spawn on each moon");
+            MaxScrap = Config.Bind("ScrapSettings", "MaxScrap", 40, "Maximum scraps that can spawn on each moon");
+            MinTotalScrapValue = Config.Bind("ScrapSettings", "MinTotalScrapValue", 600, "Minimum total scrap value on the moon");
             MaxTotalScrapValue = Config.Bind("ScrapSettings", "MaxTotalScrapValue", 5000, "Maximum total scrap value on the moon");
 
-            eventWeightEntries[EventEnum.None] = Config.Bind("EventChanceConfig", "None", 50, "[Nothing Happened Today] Nothing special will happen (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.Turret] = Config.Bind("EventChanceConfig", "Turret", 50, "[Turret Terror] This will spawn turrets all over the place inside the factory (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.Delivery] = Config.Bind("EventChanceConfig", "Delivery", 50, "[ICE SCREAM] This will order between 3 - 9 random items from the shop (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.BlobEvolution] = Config.Bind("EventChanceConfig", "BlobEvolution", 50, "[They have EVOLVED] This will spawn only Blobs and they can open doors and move much faster (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.Chaos] = Config.Bind("EventChanceConfig", "Chaos", 50, "[CHAOS COMPANY] This will increase the spawn rates of enemyies inside the factory at a significant rate (Set Chance between 0 -100)");
-            eventWeightEntries[EventEnum.SurfaceExplosion] = Config.Bind("EventChanceConfig", "SurfaceExplosion", 50, "[The Surface is explosive] Mines wills spawn at the feet of players not in the ship or factory, they also have a delayed fuse (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.FaceHuggers] = Config.Bind("EventChanceConfig", "FaceHuggers", 50, "[Internecivus Raptus?] This will ONLY spawn MANY Centipedes into the factory (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.TheRumbling] = Config.Bind("EventChanceConfig", "TheRumbling", 50, "[The Rumbling] This will spawn MANY Forest Giants when the ship has fully landed (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.TheyWant2Play] = Config.Bind("EventChanceConfig", "TheyWant2Play", 50, "[The just want to play] This will spawn several Ghost girls into the level (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.BeastInside] = Config.Bind("EventChanceConfig", "BeastInside", 50, "[The Beasts Inside] This will spawn ONLY Eyeless Dogs into the Factory, spawn rate changes depending on moon (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.Unfair] = Config.Bind("EventChanceConfig", "Unfair", 50, "[This is just unfair] This will spawn several outside enemies and inside enemies at a significant rate (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.BadPlanet] = Config.Bind("EventChanceConfig", "BadPlanet", 50, "[This planet is NOT safe] This will trigger several events, SurfaceExplosion, InstaJester, BlobEvolution, ShipTurret, Unfair (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.InstaJester] = Config.Bind("EventChanceConfig", "InstaJester", 50, "[Pop goes the... HOLY FUC-] This will spawn several jesters that have a short crank timer between 0 - 10 seconds instead of 30 - 45 seconds (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.InsideOut] = Config.Bind("EventChanceConfig", "InsideOut", 50, "[Inside Out!] This will spawn 4 Coil heads outside, they will instantly roam around the ship (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.Landmine] = Config.Bind("EventChanceConfig", "Landmine", 50, "[Minescape Terror] This will spawn MANY landmines inside the factory (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.Sacrifice] = Config.Bind("EventChanceConfig", "Sacrifice", 50, "[The Hunger Games?] This will rotate through players at a given rate, when the selected player steps inside the factory.. They get choosen for death. (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.ShipTurret] = Config.Bind("EventChanceConfig", "ShipTurret", 50, "[When did we get this installed?!?] This will spawn a turret inside the ship facing the controls (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.HoardTown] = Config.Bind("EventChanceConfig", "HoardTown", 50, "[Hoarder Town] This will ONLY spawn MANY Hoarder Bugs inside the factory (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.TheyAreShy] = Config.Bind("EventChanceConfig", "TheyAreShy", 50, "[They are shy!] This will ONLY spawn several Spring Heads and Brackens inside the factory (Set Chance between 0 - 100)");
-            eventWeightEntries[EventEnum.ResetHeat] = Config.Bind("EventChanceConfig", "ResetHeat", 50, "[All Moons Heat Reset] This will reset the moon heat for all moons (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.None] = Config.Bind("EventChanceConfig", "None", 100, "[Nothing Happened Today] Nothing special will happen (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.Turret] = Config.Bind("EventChanceConfig", "Turret", 100, "[Turret Terror] This will spawn turrets all over the place inside the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.Delivery] = Config.Bind("EventChanceConfig", "Delivery", 100, "[ICE SCREAM] This will order between 3 - 9 random items from the shop (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.BlobEvolution] = Config.Bind("EventChanceConfig", "BlobEvolution", 100, "[They have EVOLVED] This will spawn only Blobs and they can open doors and move much faster (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.Guards] = Config.Bind("EventChanceConfig", "Guards", 100, "[They gaurd this place] this will spawn nutcrackers outside (Set Chance between 0 -100)");
+            eventWeightEntries[EventEnum.SurfaceExplosion] = Config.Bind("EventChanceConfig", "SurfaceExplosion", 100, "[The Surface is explosive] Mines wills spawn at the feet of players not in the ship or factory, they also have a delayed fuse (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.FaceHuggers] = Config.Bind("EventChanceConfig", "FaceHuggers", 100, "[Bring a shovel] This will spawn MANY Centipedes into the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.TheRumbling] = Config.Bind("EventChanceConfig", "TheRumbling", 100, "[The Rumbling] This will spawn MANY Forest Giants when the ship has fully landed (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.TheyWant2Play] = Config.Bind("EventChanceConfig", "TheyWant2Play", 100, "[The just want to play] This will spawn several Ghost girls into the level (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.BeastInside] = Config.Bind("EventChanceConfig", "BeastInside", 100, "[The Beasts Inside] This will spawn Eyeless Dogs into the Factory, spawn rate changes depending on moon (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.ShadowRealm] = Config.Bind("EventChanceConfig", "ShadowRealm", 100, "[The shadows are roaming] This will spawn several bracken outside along with a chance of Fog (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.Unfair] = Config.Bind("EventChanceConfig", "Unfair", 100, "[UNFAIR COMPANY] This will spawn several outside enemies and inside enemies at a significant rate (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.OutsideBox] = Config.Bind("EventChanceConfig", "OutsideBox", 100, "[Outside the box] This will spawn Jesters Outside (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.InstaJester] = Config.Bind("EventChanceConfig", "InstaJester", 100, "[Pop goes the... HOLY FUC-] This will spawn several jesters that have a short crank timer between 0 - 10 seconds instead of 30 - 45 seconds (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.InsideOut] = Config.Bind("EventChanceConfig", "InsideOut", 100, "[Inside Out] This will spawn Coil heads outside, they will instantly roam around the ship (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.Landmine] = Config.Bind("EventChanceConfig", "Landmine", 100, "[Minescape Terror] This will spawn MANY landmines inside the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.Sacrifice] = Config.Bind("EventChanceConfig", "Sacrifice", 100, "[The Hunger Games?] This will rotate through players at a given rate, when the selected player steps inside the factory.. They get choosen for death. (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.ShipTurret] = Config.Bind("EventChanceConfig", "ShipTurret", 100, "[When did we get this installed?!?] This will spawn a turret inside the ship facing the controls (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.HoardTown] = Config.Bind("EventChanceConfig", "HoardTown", 100, "[Hoarder Town] This will ONLY spawn MANY Hoarder Bugs inside the factory and outside (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.TheyAreShy] = Config.Bind("EventChanceConfig", "TheyAreShy", 100, "[Don't look... away!] This spawn several Spring Heads and Brackens inside & outside the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.ResetHeat] = Config.Bind("EventChanceConfig", "ResetHeat", 100, "[All Moons Heat Reset] This will reset the moon heat for all moons (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
         }
 
         private void InitializeVariables()
@@ -448,6 +473,11 @@ namespace BrutalCompanyPlus
 
         public static void ApplyCustomLevelEnemyRarities(List<SpawnableEnemyWithRarity> enemies, string levelName)
         {
+            if (VanillaRaritySettings.Value)
+            {
+                return;
+            }
+
             try
             {
                 BcpLogger.Log($"Applying custom rarities for level: {levelName}");
@@ -559,7 +589,7 @@ namespace BrutalCompanyPlus
                     Variables.levelHeatVal[level] = Mathf.Clamp(HeatValue - MoonHeatDecreaseRate.Value, 0f, 100f);
                 }
 
-                if (eventEnum == EventEnum.ResetHeat || eventEnum == EventEnum.BadPlanet)
+                if (eventEnum == EventEnum.ResetHeat)
                 {
                     Variables.levelHeatVal[level] = 0f;
                 }
@@ -572,9 +602,34 @@ namespace BrutalCompanyPlus
             Variables.levelHeatVal.TryGetValue(newLevel, out HeatValue);
             HUDManager.Instance.AddTextToChatOnServer("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", -1);
             HUDManager.Instance.AddTextToChatOnServer("<color=orange>MOON IS AT " + HeatValue.ToString() + "% HEAT</color>", -1);
-            if (HeatValue >= 30f)
+            if (HeatValue >= 20f && HeatValue < 40)
             {
-                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=red>Your Moon Heat is Getting HIGH (Things might starting spawning). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=blue>Moonheat is rising (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                newLevel.currentWeather = LevelWeatherType.Rainy;
+            }
+
+            if (HeatValue >= 40f && HeatValue < 60)
+            {
+                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=purple>Moonheat is rising (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                newLevel.currentWeather = LevelWeatherType.Foggy;
+            }
+
+            if (HeatValue >= 60f && HeatValue < 80)
+            {
+                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=yellow>High moonheat detected (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                newLevel.currentWeather = LevelWeatherType.Flooded;
+            }
+
+            if (HeatValue >= 80f && HeatValue < 100)
+            {
+                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=orange>Extremely High moonheat detected (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                newLevel.currentWeather = LevelWeatherType.Stormy;
+            }
+
+            if (HeatValue >= 100)
+            {
+                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=red>MAX moonheat detected (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                newLevel.currentWeather = LevelWeatherType.Eclipsed;
             }
             return HeatValue;
         }
@@ -605,7 +660,7 @@ namespace BrutalCompanyPlus
 
 
                 case EventEnum.InsideOut:
-                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Inside Out!</color>", -1);
+                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Spring Escape!</color>", -1);
                     Variables.SpawnInsideOut = true;
                     break;
 
@@ -619,28 +674,26 @@ namespace BrutalCompanyPlus
 
                 case EventEnum.HoardTown:
                     HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Hoarder Town</color>", -1);
-                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(HoarderBugAI), 15, SpawnLocation.Vent, false, false));
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(HoarderBugAI), 8, SpawnLocation.Vent, false, false));
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(HoarderBugAI), 8, SpawnLocation.Outside, false, true));
+                    break;
 
-                    Functions.FindEnemyPrefabByType(typeof(HoarderBugAI), newLevel.Enemies, newLevel);
 
-                    foreach (var spawnableEnemy in newLevel.Enemies)
+                case EventEnum.ShadowRealm:
+                    string AdditionalInfo = "";
+                    if (UnityEngine.Random.Range(0, 1) == 1)
                     {
-                        spawnableEnemy.rarity = 0;
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<HoarderBugAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
+                        newLevel.currentWeather = LevelWeatherType.Foggy;
+                        AdditionalInfo = "in the mist!";
                     }
+                    HUDManager.Instance.AddTextToChatOnServer($"<color=yellow>EVENT<color=white>:</color></color>\n<color=red>The shadows are roaming {AdditionalInfo}</color>", -1);
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(FlowermanAI), 6, SpawnLocation.Outside, false, true));
                     break;
 
 
                 case EventEnum.BeastInside:
                     HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>The Beasts Inside!</color>", -1);
                     Functions.TheBeastsInside();
-                    foreach (var spawnableEnemy in newLevel.Enemies)
-                    {
-                        spawnableEnemy.rarity = 0;
-                    }
                     break;
 
 
@@ -657,119 +710,35 @@ namespace BrutalCompanyPlus
                     break;
 
 
-                case EventEnum.BadPlanet:
-                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>This planet is NOT friendly!!!</color>", -1);
-
-                    Functions.FindEnemyPrefabByType(typeof(CentipedeAI), newLevel.Enemies, newLevel);
+                case EventEnum.OutsideBox:
+                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Outside the box!</color>", -1);
                     Functions.FindEnemyPrefabByType(typeof(JesterAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(DressGirlAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(SpringManAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(BlobAI), newLevel.Enemies, newLevel);
-
-                    foreach (var spawnableEnemy in newLevel.Enemies)
-                    {
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<CentipedeAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<JesterAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<DressGirlAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<SpringManAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<BlobAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                    }
-
-                    Variables.InstaJester = true;
-                    Variables.BlobsHaveEvolved = true;
-                    Variables.shouldSpawnTurret = true;
-                    Variables.slSpawnTimer = -10f;
-                    Variables.surpriseLandmines += 120;
-
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(JesterAI), 2, SpawnLocation.Outside, false, true));
                     break;
 
-                case EventEnum.Chaos:
-                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>CHAOS COMPANY</color>", -1);
-
-                    Functions.FindEnemyPrefabByType(typeof(CentipedeAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(JesterAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(DressGirlAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(SpringManAI), newLevel.Enemies, newLevel);
-                    Functions.FindEnemyPrefabByType(typeof(BlobAI), newLevel.Enemies, newLevel);
-
-                    foreach (var spawnableEnemy in newLevel.Enemies)
-                    {
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<CentipedeAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<JesterAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<DressGirlAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<SpringManAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<BlobAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                    }
+                case EventEnum.Guards:
+                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>They gaurd this place!</color>", -1);
+                    Functions.FindEnemyPrefabByType(typeof(NutcrackerEnemyAI), newLevel.Enemies, newLevel);
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(NutcrackerEnemyAI), 4, SpawnLocation.Outside, false, true));
                     break;
 
 
                 case EventEnum.Unfair:
-                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>That's just unfair</color>", -1);
+                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>UNFAIR COMPANY</color>", -1);
                     break;
 
 
                 case EventEnum.FaceHuggers:
-                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Internecivus Raptus?</color>", -1);
+                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Bring a Shovel!!</color>", -1);
                     Variables.WaitUntilPlayerInside = true;
-                    Functions.FindEnemyPrefabByType(typeof(CentipedeAI), newLevel.Enemies, newLevel);
-
                     Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(CentipedeAI), 15, SpawnLocation.Vent, false, false));
-
-                    foreach (var spawnableEnemy in newLevel.Enemies)
-                    {
-                        spawnableEnemy.rarity = 0;
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<CentipedeAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                    }
                     break;
 
 
                 case EventEnum.BlobEvolution:
                     HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>They are EVOLVING?!?</color>", -1);
-
-                    Functions.FindEnemyPrefabByType(typeof(BlobAI), newLevel.Enemies, newLevel);
-
-                    foreach (var spawnableEnemy in newLevel.Enemies)
-                    {
-                        spawnableEnemy.rarity = 0;
-
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<BlobAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                    }
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(BlobAI), 3, SpawnLocation.Vent, false, false));
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(BlobAI), 1, SpawnLocation.Outside, false, true));
                     Variables.BlobsHaveEvolved = true;
                     break;
 
@@ -787,10 +756,8 @@ namespace BrutalCompanyPlus
 
                 case EventEnum.InstaJester:
                     HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Pop goes the.. HOLY FUC- </color>", -1);
-
                     //Ensure or add Jester to Moon
                     Functions.FindEnemyPrefabByType(typeof(JesterAI), newLevel.Enemies, newLevel);
-
                     //Spawn Jester
                     Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(JesterAI), 2, SpawnLocation.Vent, false, false));
 
@@ -799,23 +766,13 @@ namespace BrutalCompanyPlus
 
 
                 case EventEnum.TheyAreShy:
-                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>They are shy!</color>", -1);
-
-                    //Ensure or add FlowermanAI to Moon
+                    HUDManager.Instance.AddTextToChatOnServer("<color=yellow>EVENT<color=white>:</color></color>\n<color=red>Don't look... away?</color>", -1);
                     Functions.FindEnemyPrefabByType(typeof(FlowermanAI), newLevel.Enemies, newLevel);
-
-                    foreach (var spawnableEnemy in newLevel.Enemies)
-                    {
-                        spawnableEnemy.rarity = 0;
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<FlowermanAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                        if (spawnableEnemy.enemyType.enemyPrefab.GetComponent<SpringManAI>() != null)
-                        {
-                            spawnableEnemy.rarity = 100;
-                        }
-                    }
+                    Functions.FindEnemyPrefabByType(typeof(SpringManAI), newLevel.Enemies, newLevel);
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(SpringManAI), 3, SpawnLocation.Vent, false, false));
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(FlowermanAI), 3, SpawnLocation.Vent, false, false));
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(FlowermanAI), 3, SpawnLocation.Outside, false, true));
+                    Variables.presetEnemiesToSpawn.Add(new Variables.EnemySpawnInfo(typeof(SpringManAI), 2, SpawnLocation.Outside, false, true));
 
                     break;
 
@@ -855,6 +812,51 @@ namespace BrutalCompanyPlus
             }
         }
 
+        public static void StoreOriginalEnemyList(SelectableLevel level)
+        {
+            if (!Variables.originalEnemyLists.ContainsKey(level))
+            {
+                Variables.originalEnemyLists[level] = new List<SpawnableEnemyWithRarity>(level.Enemies);
+            }
+        }
+
+        public static void ModifyCurrentLevelEnemies(SelectableLevel currentLevel, params Type[] keepEnemyTypes)
+        {
+            // Set all types in defaultRemovableEnemyTypes to false
+            foreach (var key in Variables.defaultRemovableEnemyTypes.Keys.ToList())
+            {
+                Variables.defaultRemovableEnemyTypes[key] = false;
+            }
+
+            // Set passed enemy types to true (to keep them)
+            // Add them to the dictionary if they don't exist
+            foreach (var type in keepEnemyTypes)
+            {
+                if (Variables.defaultRemovableEnemyTypes.ContainsKey(type))
+                {
+                    Variables.defaultRemovableEnemyTypes[type] = true;
+                }
+                else
+                {
+                    Variables.defaultRemovableEnemyTypes.Add(type, true);
+                }
+            }
+
+            // Remove enemies from current level based on defaultRemovableEnemyTypes
+            currentLevel.Enemies.RemoveAll(enemy =>
+                Variables.defaultRemovableEnemyTypes.TryGetValue(enemy.enemyType.GetType(), out bool keep) && !keep
+            );
+        }
+
+        public static void RestoreOriginalEnemyList(SelectableLevel level)
+        {
+            if (Variables.originalEnemyLists.ContainsKey(level))
+            {
+                level.Enemies = Variables.originalEnemyLists[level];
+                Variables.originalEnemyLists.Remove(level); // Optionally remove the stored list if it's no longer needed
+            }
+        }
+
         //This adjust landmines and turrets for each level
         public static void UpdateMapObjects(SelectableLevel newLevel, EventEnum eventEnum)
         {
@@ -864,7 +866,7 @@ namespace BrutalCompanyPlus
                 if (spawnableMapObject.prefabToSpawn.GetComponentInChildren<Turret>() != null)
                 {
                     Variables.turret = spawnableMapObject.prefabToSpawn;
-                    if (eventEnum == EventEnum.Turret || eventEnum == EventEnum.BadPlanet)
+                    if (eventEnum == EventEnum.Turret)
                     {
                         spawnableMapObject.numberToSpawn = new AnimationCurve(new Keyframe[]
                         {
@@ -885,7 +887,7 @@ namespace BrutalCompanyPlus
                 else if (spawnableMapObject.prefabToSpawn.GetComponentInChildren<Landmine>() != null)
                 {
                     Variables.landmine = spawnableMapObject.prefabToSpawn;
-                    if (eventEnum == EventEnum.Landmine || eventEnum == EventEnum.BadPlanet)
+                    if (eventEnum == EventEnum.Landmine)
                     {
                         spawnableMapObject.numberToSpawn = new AnimationCurve(new Keyframe[]
                         {
@@ -940,81 +942,43 @@ namespace BrutalCompanyPlus
                 newLevel.minTotalScrapValue = Plugin.MinTotalScrapValue.Value;
                 newLevel.maxTotalScrapValue = Plugin.MaxTotalScrapValue.Value;
 
-                newLevel.maxEnemyPowerCount += 70;
+                newLevel.maxEnemyPowerCount += 150;
                 newLevel.maxOutsideEnemyPowerCount += 10;
-                newLevel.maxDaytimeEnemyPowerCount += 50;
+                newLevel.maxDaytimeEnemyPowerCount += 150;
             }
-
             // Other level property adjustments can be added here
         }
 
 
         public static void ModifyEnemySpawnChances(SelectableLevel newLevel, EventEnum eventEnum, float MoonHeat)
         {
-            float scaledMoonHeat = 0;
-            if (MoonHeat > 30)
+            newLevel.enemySpawnChanceThroughoutDay = new AnimationCurve((Keyframe[])(object)new Keyframe[3]
             {
-                scaledMoonHeat = (MoonHeat / 100.0f) * 10.0f;
-            }
-            // Use config values for Factory Enemies, or default if set to -1
-            float factoryStartValue = FactoryStartOfDaySpawnChance.Value != -1 ? FactoryStartOfDaySpawnChance.Value : 3f;
-            float factoryMidValue = FactoryMidDaySpawnChance.Value != -1 ? FactoryMidDaySpawnChance.Value : 7f;
-            float factoryEndValue = FactoryEndOfDaySpawnChance.Value != -1 ? FactoryEndOfDaySpawnChance.Value : 15f;
-
-            newLevel.enemySpawnChanceThroughoutDay = new AnimationCurve(new Keyframe[]
-            {
-        new Keyframe(0f, factoryStartValue),
-        new Keyframe(0.5f, factoryMidValue),
-        new Keyframe(1f, factoryEndValue)
+                new Keyframe(0f, 0.1f),
+                new Keyframe(0.5f, 10f),
+                new Keyframe(1f, 70f)
             });
 
-            // Use config values for Outside Enemies, or default if set to -1
-            float outsideStartValue = OutsideStartOfDaySpawnChance.Value != -1 ? OutsideStartOfDaySpawnChance.Value : -2f;
-            float outsideMidValue = OutsideMidDaySpawnChance.Value != -1 ? OutsideMidDaySpawnChance.Value : 0f;
-            float outsideEndValue = OutsideEndOfDaySpawnChance.Value != -1 ? OutsideEndOfDaySpawnChance.Value : 5f;
-
-            newLevel.outsideEnemySpawnChanceThroughDay = new AnimationCurve(new Keyframe[]
+            newLevel.outsideEnemySpawnChanceThroughDay = new AnimationCurve((Keyframe[])(object)new Keyframe[3]
             {
-        new Keyframe(0f, outsideStartValue + scaledMoonHeat),
-        new Keyframe(0.5f, outsideMidValue + scaledMoonHeat),
-        new Keyframe(1f, outsideEndValue + scaledMoonHeat)
+                new Keyframe(0f, -30f),
+                new Keyframe(20f, -20f),
+                new Keyframe(21f, 10f)
             });
 
             // Adjust spawn chances based on the event
             switch (eventEnum)
             {
                 case EventEnum.Unfair:
-                    newLevel.outsideEnemySpawnChanceThroughDay = new AnimationCurve(new Keyframe[]
+                    newLevel.outsideEnemySpawnChanceThroughDay = new AnimationCurve((Keyframe[])(object)new Keyframe[2]
                     {
-                        new Keyframe(0f, 5f),
-                        new Keyframe(0.5f, 5f),
-                        new Keyframe(1f, 5.3f)
+                        new Keyframe(0f, 999f),
+                        new Keyframe(21f, 999f)
                     });
-                    break;
-
-                case EventEnum.BadPlanet:
-                    newLevel.maxEnemyPowerCount += 200;
-                    newLevel.outsideEnemySpawnChanceThroughDay = new AnimationCurve(new Keyframe[]
+                    newLevel.enemySpawnChanceThroughoutDay = new AnimationCurve((Keyframe[])(object)new Keyframe[2]
                     {
-                        new Keyframe(0f, 5f),
-                        new Keyframe(0.5f, 5f),
-                        new Keyframe(1f, 5.3f)
-                    });
-                    newLevel.enemySpawnChanceThroughoutDay = new AnimationCurve(new Keyframe[]
-                    {
-                        new Keyframe(0f, 10),
-                        new Keyframe(0.5f, 50),
-                        new Keyframe(1f, 100)
-                    });
-                    break;
-
-                case EventEnum.Chaos:
-                    newLevel.maxEnemyPowerCount += 200;
-                    newLevel.enemySpawnChanceThroughoutDay = new AnimationCurve(new Keyframe[]
-                    {
-                        new Keyframe(0f, 10),
-                        new Keyframe(0.5f, 50),
-                        new Keyframe(1f, 100)
+                        new Keyframe(0f, 500f),
+                        new Keyframe(0.5f, 500f)
                     });
                     break;
 

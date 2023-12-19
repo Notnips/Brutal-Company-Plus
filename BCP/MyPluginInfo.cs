@@ -8,6 +8,6 @@ namespace BrutalCompanyPlus.BCP
 
         public const string PLUGIN_NAME = "BrutalCompanyPlus";
 
-        public const string PLUGIN_VERSION = "3.3.1";
+        public const string PLUGIN_VERSION = "3.5.0";
     }
 }

@@ -1,7 +1,10 @@
 ﻿using BrutalCompanyPlus.BCP;
 using GameNetcodeStuff;
 using HarmonyLib;
+using System;
+using System.Net.Cache;
 using UnityEngine;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BrutalCompanyPlus.HarmPatches
 {
@@ -13,6 +16,14 @@ namespace BrutalCompanyPlus.HarmPatches
         [HarmonyPostfix]
         public static void BlobModifications(BlobAI __instance)
         {
+            if (__instance.isOutside)
+            {
+                if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+                {
+                    __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
+                }
+            }
+
             if (Variables.BlobsHaveEvolved && RoundManager.Instance.IsHost)
             {
                 if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
@@ -27,37 +38,79 @@ namespace BrutalCompanyPlus.HarmPatches
             }
         }
 
-        //[HarmonyPatch(typeof(JesterAI), "Update")]
-        //[HarmonyPostfix]
-        //public static void InsideOutJesterModifications(JesterAI __instance)
-        //{
-        //    if (Variables.InsideOutOwnership && RoundManager.Instance.IsHost)
-        //    {
-        //        // Check if the instance ID is in the HashSet
-        //        if (Variables.SpawnedInsideOutID.Contains(__instance.GetInstanceID()))
-        //        {
-        //            // If the instance is owned by someone other than the local player
-        //            if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
-        //            {
-        //                __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
-        //            }
-        //        }
-        //    }
-        //}
+        [HarmonyPatch(typeof(FlowermanAI), "Update")]
+        [HarmonyPostfix]
+        public static void FlowerManModifications(FlowermanAI __instance)
+        {
+            if (__instance.isOutside)
+            {
+                if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+                {
+                    __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(HoarderBugAI), "Update")]
+        [HarmonyPostfix]
+        public static void HoarderBugModifications(HoarderBugAI __instance)
+        {
+            if (__instance.isOutside)
+            {
+                if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+                {
+                    __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
+                }
+            }
+        }
+
+        public static bool HoldState = false;
+        [HarmonyPatch(typeof(JesterAI), "Update")]
+        [HarmonyPostfix]
+        public static void InsideOutJesterModifications(JesterAI __instance)
+        {
+            if (RoundManager.Instance.IsHost)
+            {
+                if (__instance.isOutside)
+                {
+                    if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+                    {
+                        __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
+                    }
+                    if (__instance.previousBehaviourStateIndex == 1 || HoldState)
+                    {
+                        __instance.SwitchToBehaviourState(2);
+                        HoldState = true;
+                        bool PlayersAreAllInside = true;
+                        for (int i = 0; i < StartOfRound.Instance.allPlayerScripts.Length; i++)
+                        {
+                            if (!StartOfRound.Instance.allPlayerScripts[i].isInsideFactory && StartOfRound.Instance.allPlayerScripts[i].isPlayerControlled)
+                            {
+                                PlayersAreAllInside = false;
+                                break;
+                            }
+                        }
+                        if (PlayersAreAllInside || StartOfRound.Instance.shipIsLeaving)
+                        {
+                            __instance.previousBehaviourStateIndex = 0;
+                            __instance.SwitchToBehaviourState(0);
+                            HoldState = false;
+                        }
+                    }
+                }
+            }
+        }
 
         //Force Ownership to prevent a client from crashing when the AI is outside
         [HarmonyPatch(typeof(SpringManAI), "Update")]
         [HarmonyPostfix]
         public static void InsideOutSpringManModifications(SpringManAI __instance)
         {
-            if (Variables.InsideOutOwnership && RoundManager.Instance.IsHost)
+            if (__instance.isOutside)
             {
-                if (Variables.SpawnedInsideOutID.Contains(__instance.GetInstanceID()))
+                if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
                 {
-                    if (__instance.OwnerClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
-                    {
-                        __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
-                    }
+                    __instance.ChangeOwnershipOfEnemy(GameNetworkManager.Instance.localPlayerController.actualClientId);
                 }
             }
         }
