@@ -8,6 +8,7 @@ using BrutalCompanyPlus.BCP;
 using BepInEx.Configuration;
 using static BrutalCompanyPlus.BCP.MyPluginInfo;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace BrutalCompanyPlus
 {
@@ -15,6 +16,16 @@ namespace BrutalCompanyPlus
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        public static ConfigEntry<string> ExperimentationLevelScrap { get; private set; }
+        public static ConfigEntry<string> AssuranceLevelScrap { get; private set; }
+        public static ConfigEntry<string> VowLevelScrap { get; private set; }
+        public static ConfigEntry<string> MarchLevelScrap { get; private set; }
+        public static ConfigEntry<string> RendLevelScrap { get; private set; }
+        public static ConfigEntry<string> DineLevelScrap { get; private set; }
+        public static ConfigEntry<string> OffenseLevelScrap { get; private set; }
+        public static ConfigEntry<string> TitanLevelScrap { get; private set; }
+        public static ConfigEntry<string> CustomLevelScrap { get; private set; }
+
         public static ConfigEntry<bool> VanillaRaritySettings { get; private set; }
 
         // Configuration for Factory Enemies Spawn Chance
@@ -277,6 +288,15 @@ namespace BrutalCompanyPlus
 
         public void InitializeBCP_ConfigSettings()
         {
+            ExperimentationLevelScrap = Config.Bind("CustomScrapSettings", "ExperimentationLevelScrap", "6,25,400,1500", "Define min/max scrap pieces and min/max total scrap value for Experimentation Level ( -1 = Vanilla Value )");
+            AssuranceLevelScrap = Config.Bind("CustomScrapSettings", "AssuranceLevelScrap", "10,25,600,2500", "Define min/max scrap pieces and min/max total scrap value for Assurance Level ( -1 = Vanilla Value )");
+            VowLevelScrap = Config.Bind("CustomScrapSettings", "VowLevelScrap", "12,35,600,2500", "Define min/max scrap pieces and min/max total scrap value for Vow Level ( -1 = Vanilla Value )");
+            OffenseLevelScrap = Config.Bind("CustomScrapSettings", "OffenseLevelScrap", "15,35,800,3500", "Define min/max scrap pieces and min/max total scrap value for Offense Level ( -1 = Vanilla Value )");
+            MarchLevelScrap = Config.Bind("CustomScrapSettings", "MarchLevelScrap", "15,35,800,3500", "Define min/max scrap pieces and min/max total scrap value for March Level ( -1 = Vanilla Value )");
+            RendLevelScrap = Config.Bind("CustomScrapSettings", "RendLevelScrap", "20,60,1500,5000", "Define min/max scrap pieces and min/max total scrap value for Rend Level ( -1 = Vanilla Value )");
+            DineLevelScrap = Config.Bind("CustomScrapSettings", "DineScrap", "20,60,1500,5000", "Define min/max scrap pieces and min/max total scrap value for Dine Level ( -1 = Vanilla Value )");
+            TitanLevelScrap = Config.Bind("CustomScrapSettings", "TitanLevelScrap", "20,60,2000,6000", "Define min/max scrap pieces and min/max total scrap value for Titan Level ( -1 = Vanilla Value )");
+            CustomLevelScrap = Config.Bind("CustomScrapSettings", "CustomLevelScrap", "-1,-1,-1,-1", "Define min/max scrap pieces and min/max total scrap value for Any Custom Levels ( -1 = Vanilla Value )");
 
             MoonHeatDecreaseRate = Config.Bind("MoonHeatSettings", "MoonHeatDecreaseRate", 10f, "Amount by which moon heat decreases when not visiting the planet");
             MoonHeatIncreaseRate = Config.Bind("MoonHeatSettings", "MoonHeatIncreaseRate", 20f, "Amount by which moon heat increases when landing back on the same planet");
@@ -287,19 +307,19 @@ namespace BrutalCompanyPlus
             LandmineSpawnRate = Config.Bind("MapObjectModificationSettings", "LandmineSpawnRate", 30f, "Default spawn amount for landmines on every moon");
 
             VanillaRaritySettings = Config.Bind("CustomLevelRarities", "VanillaRaritySettings", false, "If TRUE this will DISABLE overwriting Rarity Values for Factory Enemies");
-            ExperimentationLevelRarities = Config.Bind("CustomLevelRarities", "Experimentation", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Experimentation (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            AssuranceLevelRarities = Config.Bind("CustomLevelRarities", "Assurance", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Assurance (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            VowLevelRarities = Config.Bind("CustomLevelRarities", "Vow", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Vow (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            MarchLevelRarities = Config.Bind("CustomLevelRarities", "March", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for March (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            RendLevelRarities = Config.Bind("CustomLevelRarities", "Rend", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Rend (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            DineLevelRarities = Config.Bind("CustomLevelRarities", "Dine", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Dine (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            OffenseLevelRarities = Config.Bind("CustomLevelRarities", "Offense", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Offense (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-            TitanLevelRarities = Config.Bind("CustomLevelRarities", "Titan", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Titan (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
+            ExperimentationLevelRarities = Config.Bind("CustomLevelRarities", "Experimentation", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Experimentation (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            AssuranceLevelRarities = Config.Bind("CustomLevelRarities", "Assurance", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Assurance (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            VowLevelRarities = Config.Bind("CustomLevelRarities", "Vow", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Vow (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            MarchLevelRarities = Config.Bind("CustomLevelRarities", "March", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for March (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            RendLevelRarities = Config.Bind("CustomLevelRarities", "Rend", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Rend (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            DineLevelRarities = Config.Bind("CustomLevelRarities", "Dine", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Dine (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            OffenseLevelRarities = Config.Bind("CustomLevelRarities", "Offense", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Offense (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
+            TitanLevelRarities = Config.Bind("CustomLevelRarities", "Titan", "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1", "Define custom enemy rarities for Titan (0 = no spawn, 100 = max chance, -1 = default Brutals rarity, The spawn rate will also be impacted depnding on the Chance rate)");
 
             EnableFreeMoney = Config.Bind("EventOptions", "EnableFreeMoney", true, "This will give free money everytime survive and escape the planet");
             FreeMoneyValue = Config.Bind("EventOptions", "FreeMoneyValue", 150, "This will control the amount of money you get when EnableFreeMoney is true");
 
-            EnableAllEnemy = Config.Bind("EnemySettings", "EnableAllEnemy", true, "This will add every enemy type to each moon as a spawn chance");
+            EnableAllEnemy = Config.Bind("EnemySettings", "EnableAllEnemy", true, "This will add every vanilla enemy type to each moon as a spawn chance");
 
             DeadlineDaysAmount = Config.Bind("QuotaSettings", "DeadlineDaysAmount", 4, "Days available before deadline");
             StartingCredits = Config.Bind("QuotaSettings", "StartingCredits", 200, "Credits at the start of a new session");
@@ -311,27 +331,27 @@ namespace BrutalCompanyPlus
             MinTotalScrapValue = Config.Bind("ScrapSettings", "MinTotalScrapValue", 600, "Minimum total scrap value on the moon");
             MaxTotalScrapValue = Config.Bind("ScrapSettings", "MaxTotalScrapValue", 5000, "Maximum total scrap value on the moon");
 
-            eventWeightEntries[EventEnum.None] = Config.Bind("EventChanceConfig", "None", 100, "[Nothing Happened Today] Nothing special will happen (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.Turret] = Config.Bind("EventChanceConfig", "Turret", 100, "[Turret Terror] This will spawn turrets all over the place inside the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.Delivery] = Config.Bind("EventChanceConfig", "Delivery", 100, "[ICE SCREAM] This will order between 3 - 9 random items from the shop (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.BlobEvolution] = Config.Bind("EventChanceConfig", "BlobEvolution", 100, "[They have EVOLVED] This will spawn only Blobs and they can open doors and move much faster (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.None] = Config.Bind("EventChanceConfig", "None", 100, "[Nothing Happened Today] Nothing special will happen (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.Turret] = Config.Bind("EventChanceConfig", "Turret", 100, "[Turret Terror] This will spawn turrets all over the place inside the factory (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.Delivery] = Config.Bind("EventChanceConfig", "Delivery", 100, "[ICE SCREAM] This will order between 3 - 9 random items from the shop (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.BlobEvolution] = Config.Bind("EventChanceConfig", "BlobEvolution", 100, "[They have EVOLVED] This will spawn Blobs inside and 1 outside and they can open doors and move much faster (Set Chance between 0 - 100)");
             eventWeightEntries[EventEnum.Guards] = Config.Bind("EventChanceConfig", "Guards", 100, "[They gaurd this place] this will spawn nutcrackers outside (Set Chance between 0 -100)");
-            eventWeightEntries[EventEnum.SurfaceExplosion] = Config.Bind("EventChanceConfig", "SurfaceExplosion", 100, "[The Surface is explosive] Mines wills spawn at the feet of players not in the ship or factory, they also have a delayed fuse (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.FaceHuggers] = Config.Bind("EventChanceConfig", "FaceHuggers", 100, "[Bring a shovel] This will spawn MANY Centipedes into the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.TheRumbling] = Config.Bind("EventChanceConfig", "TheRumbling", 100, "[The Rumbling] This will spawn MANY Forest Giants when the ship has fully landed (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.TheyWant2Play] = Config.Bind("EventChanceConfig", "TheyWant2Play", 100, "[The just want to play] This will spawn several Ghost girls into the level (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.BeastInside] = Config.Bind("EventChanceConfig", "BeastInside", 100, "[The Beasts Inside] This will spawn Eyeless Dogs into the Factory, spawn rate changes depending on moon (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.ShadowRealm] = Config.Bind("EventChanceConfig", "ShadowRealm", 100, "[The shadows are roaming] This will spawn several bracken outside along with a chance of Fog (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.Unfair] = Config.Bind("EventChanceConfig", "Unfair", 100, "[UNFAIR COMPANY] This will spawn several outside enemies and inside enemies at a significant rate (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.OutsideBox] = Config.Bind("EventChanceConfig", "OutsideBox", 100, "[Outside the box] This will spawn Jesters Outside (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.InstaJester] = Config.Bind("EventChanceConfig", "InstaJester", 100, "[Pop goes the... HOLY FUC-] This will spawn several jesters that have a short crank timer between 0 - 10 seconds instead of 30 - 45 seconds (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.InsideOut] = Config.Bind("EventChanceConfig", "InsideOut", 100, "[Inside Out] This will spawn Coil heads outside, they will instantly roam around the ship (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.Landmine] = Config.Bind("EventChanceConfig", "Landmine", 100, "[Minescape Terror] This will spawn MANY landmines inside the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.Sacrifice] = Config.Bind("EventChanceConfig", "Sacrifice", 100, "[The Hunger Games?] This will rotate through players at a given rate, when the selected player steps inside the factory.. They get choosen for death. (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.ShipTurret] = Config.Bind("EventChanceConfig", "ShipTurret", 100, "[When did we get this installed?!?] This will spawn a turret inside the ship facing the controls (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.HoardTown] = Config.Bind("EventChanceConfig", "HoardTown", 100, "[Hoarder Town] This will ONLY spawn MANY Hoarder Bugs inside the factory and outside (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.TheyAreShy] = Config.Bind("EventChanceConfig", "TheyAreShy", 100, "[Don't look... away!] This spawn several Spring Heads and Brackens inside & outside the factory (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
-            eventWeightEntries[EventEnum.ResetHeat] = Config.Bind("EventChanceConfig", "ResetHeat", 100, "[All Moons Heat Reset] This will reset the moon heat for all moons (Set Chance between 0 - 100, The spawn rate will also be impacted depnding on the Chance rate)");
+            eventWeightEntries[EventEnum.SurfaceExplosion] = Config.Bind("EventChanceConfig", "SurfaceExplosion", 100, "[The Surface is explosive] Mines wills spawn at the feet of players not in the ship or factory, they also have a delayed fuse (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.FaceHuggers] = Config.Bind("EventChanceConfig", "FaceHuggers", 100, "[Bring a shovel] This will spawn MANY Centipedes into the factory (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.TheRumbling] = Config.Bind("EventChanceConfig", "TheRumbling", 100, "[The Rumbling] This will spawn MANY Forest Giants when the ship has fully landed (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.TheyWant2Play] = Config.Bind("EventChanceConfig", "TheyWant2Play", 100, "[The just want to play] This will spawn several Ghost girls into the level (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.BeastInside] = Config.Bind("EventChanceConfig", "BeastInside", 100, "[The Beasts Inside] This will spawn Eyeless Dogs into the Factory, spawn rate changes depending on moon (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.ShadowRealm] = Config.Bind("EventChanceConfig", "ShadowRealm", 100, "[The shadows are roaming] This will spawn several bracken outside along with a chance of Fog (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.Unfair] = Config.Bind("EventChanceConfig", "Unfair", 100, "[UNFAIR COMPANY] This will spawn several outside enemies and inside enemies at a significant rate (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.OutsideBox] = Config.Bind("EventChanceConfig", "OutsideBox", 100, "[Outside the box] This will spawn Jesters Outside (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.InstaJester] = Config.Bind("EventChanceConfig", "InstaJester", 100, "[Pop goes the... HOLY FUC-] This will spawn several jesters that have a short crank timer between 0 - 10 seconds instead of 30 - 45 seconds (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.InsideOut] = Config.Bind("EventChanceConfig", "InsideOut", 100, "[Spring Escape] This will spawn Coil heads outside, they will instantly roam around the ship (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.Landmine] = Config.Bind("EventChanceConfig", "Landmine", 100, "[Minescape Terror] This will spawn MANY landmines inside the factory (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.Sacrifice] = Config.Bind("EventChanceConfig", "Sacrifice", 100, "[The Hunger Games?] This will rotate through players at a given rate, when the selected player steps inside the factory.. They get choosen for death. (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.ShipTurret] = Config.Bind("EventChanceConfig", "ShipTurret", 100, "[When did we get this installed?!?] This will spawn a turret inside the ship facing the controls (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.HoardTown] = Config.Bind("EventChanceConfig", "HoardTown", 100, "[Hoarder Town] This will spawn MANY Hoarder Bugs inside the factory and outside (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.TheyAreShy] = Config.Bind("EventChanceConfig", "TheyAreShy", 100, "[Don't look... away!] This spawn several Spring Heads and Brackens inside & outside the factory (Set Chance between 0 - 100)");
+            eventWeightEntries[EventEnum.ResetHeat] = Config.Bind("EventChanceConfig", "ResetHeat", 100, "[All Moons Heat Reset] This will reset the moon heat for all moons (Set Chance between 0 - 100)");
         }
 
         private void InitializeVariables()
@@ -442,12 +462,6 @@ namespace BrutalCompanyPlus
                 .Select(kvp => new { Event = kvp.Key, Weight = kvp.Value.Value })
                 .ToList();
 
-            // Remove the last event if there are other options
-            if (weightedEvents.Count > 1)
-            {
-                weightedEvents = weightedEvents.Where(e => e.Event != Variables.lastEvent).ToList();
-            }
-
             if (weightedEvents.Count == 0)
             {
                 return EventEnum.None;
@@ -460,9 +474,9 @@ namespace BrutalCompanyPlus
             foreach (var weightedEvent in weightedEvents)
             {
                 weightSum += weightedEvent.Weight;
-                if (randomNumber <= weightSum)
+                if (randomNumber < weightSum)
                 {
-                    Variables.lastEvent = weightedEvent.Event; // Update the last event
+                    Variables.lastEvent = weightedEvent.Event;
                     return weightedEvent.Event;
                 }
             }
@@ -604,32 +618,32 @@ namespace BrutalCompanyPlus
             HUDManager.Instance.AddTextToChatOnServer("<color=orange>MOON IS AT " + HeatValue.ToString() + "% HEAT</color>", -1);
             if (HeatValue >= 20f && HeatValue < 40)
             {
-                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=blue>Moonheat is rising (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
-                newLevel.currentWeather = LevelWeatherType.Rainy;
+                HUDManager.Instance.AddTextToChatOnServer("<size=11><color=blue>Moonheat is rising and caused it to rain. <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                //newLevel.currentWeather = LevelWeatherType.Rainy;
             }
 
             if (HeatValue >= 40f && HeatValue < 60)
             {
-                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=purple>Moonheat is rising (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
-                newLevel.currentWeather = LevelWeatherType.Foggy;
+                HUDManager.Instance.AddTextToChatOnServer("<size=11><color=purple>Moonheat is rising causing a layer of fog. <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                //newLevel.currentWeather = LevelWeatherType.Foggy;
             }
 
             if (HeatValue >= 60f && HeatValue < 80)
             {
-                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=yellow>High moonheat detected (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
-                newLevel.currentWeather = LevelWeatherType.Flooded;
+                HUDManager.Instance.AddTextToChatOnServer("<size=11><color=yellow>Moonheat is HOT, flooding the moon to cool it off. <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                //newLevel.currentWeather = LevelWeatherType.Flooded;
             }
 
             if (HeatValue >= 80f && HeatValue < 100)
             {
-                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=orange>Extremely High moonheat detected (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
-                newLevel.currentWeather = LevelWeatherType.Stormy;
+                HUDManager.Instance.AddTextToChatOnServer("<size=11><color=orange>Extremely high moonheat detected causing dangerous weather. <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                //newLevel.currentWeather = LevelWeatherType.Stormy;
             }
 
             if (HeatValue >= 100)
             {
-                HUDManager.Instance.AddTextToChatOnServer("<size=10><color=red>MAX moonheat detected (The weather is acting weird as a result). <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
-                newLevel.currentWeather = LevelWeatherType.Eclipsed;
+                HUDManager.Instance.AddTextToChatOnServer("<size=11><color=red>The Moon is overheated and now hostile creatures roam it. <color=white>\nVisit other moons to decrease your moon heat!</color></size>", -1);
+                //newLevel.currentWeather = LevelWeatherType.Eclipsed;
             }
             return HeatValue;
         }
@@ -639,7 +653,8 @@ namespace BrutalCompanyPlus
 
             if (newLevel.sceneName == "CompanyBuilding")
             {
-                eventEnum = EventEnum.None;
+                HUDManager.Instance.AddTextToChatOnServer("<color=green>Welcome to the Company Buidling!</color>", -1);
+                return;
             }
 
             switch (eventEnum)
@@ -934,13 +949,15 @@ namespace BrutalCompanyPlus
             {
                 Variables.levelsModified.Add(newLevel);
 
-                // Adjusting minimum and maximum scrap values based on config
-                newLevel.minScrap = Plugin.MinScrap.Value;
-                newLevel.maxScrap = Plugin.MaxScrap.Value;
-
-                // Adjusting minimum and maximum total scrap value based on config
-                newLevel.minTotalScrapValue = Plugin.MinTotalScrapValue.Value;
-                newLevel.maxTotalScrapValue = Plugin.MaxTotalScrapValue.Value;
+                var scrapSettings = GetConfigForScrapSettings(newLevel.name)?.Value.Split(',');
+                if (scrapSettings != null && scrapSettings.Length == 4)
+                {
+                    // Use per-level configuration, default to vanilla settings if -1
+                    newLevel.minScrap = scrapSettings[0] != "-1" ? int.Parse(scrapSettings[0]) : newLevel.minScrap;
+                    newLevel.maxScrap = scrapSettings[1] != "-1" ? int.Parse(scrapSettings[1]) : newLevel.maxScrap;
+                    newLevel.minTotalScrapValue = scrapSettings[2] != "-1" ? int.Parse(scrapSettings[2]) : newLevel.minTotalScrapValue;
+                    newLevel.maxTotalScrapValue = scrapSettings[3] != "-1" ? int.Parse(scrapSettings[3]) : newLevel.maxTotalScrapValue;
+                }
 
                 newLevel.maxEnemyPowerCount += 150;
                 newLevel.maxOutsideEnemyPowerCount += 10;
@@ -949,6 +966,21 @@ namespace BrutalCompanyPlus
             // Other level property adjustments can be added here
         }
 
+        private static ConfigEntry<string> GetConfigForScrapSettings(string levelName)
+        {
+            switch (levelName)
+            {
+                case "ExperimentationLevel": return ExperimentationLevelScrap;
+                case "AssuranceLevel": return AssuranceLevelScrap;
+                case "VowLevel": return VowLevelScrap;
+                case "MarchLevel": return MarchLevelScrap;
+                case "RendLevel": return RendLevelScrap;
+                case "DineLevel": return DineLevelScrap;
+                case "OffenseLevel": return OffenseLevelScrap;
+                case "TitanLevel": return TitanLevelScrap;
+                default: return CustomLevelScrap;
+            }
+        }
 
         public static void ModifyEnemySpawnChances(SelectableLevel newLevel, EventEnum eventEnum, float MoonHeat)
         {

@@ -24,10 +24,10 @@
   - `BaseIncrease`: Define the quota increase after each deadline.
 
 ### Scrap Management
-- `MinScrap`: Minimum scrap spawned on moons.
-- `MaxScrap`: Maximum scrap spawned on moons.
-- `MinTotalScrapValue`: Minimum total scrap value on moons.
-- `MaxTotalScrapValue`: Maximum total scrap value on moons.
+- Individual scrap value settings for each moon.
+- To retain vanilla values, input `-1`.
+- Format: `(Min Scrap Pieces / Max Scrap Pieces / Min Total Scrap Value / Max Total Scrap Value)`
+  - Example: `(6, 25, 400, 1500)`
 
 ### Enemy Dynamics
 - **Enemy Enablement**: Option to enable all enemies on every moon.
@@ -65,12 +65,18 @@
   - Open and adjust the config to your liking!
 
 ### IMPORTANT
+- This mod will now be REQUIRED on all clients to allow events to properly play out as intended.
+
 - Avoid typos in the config; errors can lead to total mod failure.
 - Experiencing an issue where only the event "None" occurs could be due to a config issue.
 
 ## Notes
-- Currently a HOST ONLY mod; clients do not need this mod to enjoy the experience.
 - Continuously adding new and exciting events.
+
+## Common Mod Conflicts
+- Game Master ( this mod wipes the chat )
+- Other event related mods ( they conflict and overwrite the chat )
+- NoFriendlyFire ( this conflicts with a few events that use the PlayerDamageServerRPC )
 
 ## Coming Soon
 **Events**

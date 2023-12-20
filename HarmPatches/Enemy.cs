@@ -3,6 +3,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using System;
 using System.Net.Cache;
+using System.Reflection;
 using UnityEngine;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -80,6 +81,7 @@ namespace BrutalCompanyPlus.HarmPatches
                     if (__instance.previousBehaviourStateIndex == 1 || HoldState)
                     {
                         __instance.SwitchToBehaviourState(2);
+                        __instance.agent.stoppingDistance = 0;
                         HoldState = true;
                         bool PlayersAreAllInside = true;
                         for (int i = 0; i < StartOfRound.Instance.allPlayerScripts.Length; i++)
@@ -93,6 +95,7 @@ namespace BrutalCompanyPlus.HarmPatches
                         if (PlayersAreAllInside || StartOfRound.Instance.shipIsLeaving)
                         {
                             __instance.previousBehaviourStateIndex = 0;
+                            __instance.agent.stoppingDistance = 4;
                             __instance.SwitchToBehaviourState(0);
                             HoldState = false;
                         }
@@ -213,7 +216,7 @@ namespace BrutalCompanyPlus.HarmPatches
         //Function Overwrite to allow Dogs to kill other players while inside factory, cause why not add code to prevent dogs killing players in a factory .----.
         [HarmonyPatch(typeof(MouthDogAI), "OnCollideWithPlayer")]
         [HarmonyPrefix]
-        public static bool OnCollideWithPlayerPatch(MouthDogAI __instance, ref Collider other, bool ___inKillAnimation, Collider ___debugCollider, bool ___inLunge, Ray ___ray, RaycastHit ___rayHit, RoundManager ___roundManager)
+        public static bool MouthDogAIOnCollideWithPlayerPatch(MouthDogAI __instance, ref Collider other, bool ___inKillAnimation, Collider ___debugCollider, bool ___inLunge, Ray ___ray, RaycastHit ___rayHit, RoundManager ___roundManager)
         {
             if (Variables.DogForceOwnership && RoundManager.Instance.IsHost)
             {
@@ -267,5 +270,108 @@ namespace BrutalCompanyPlus.HarmPatches
             return true;
         }
 
+        //Function Overwrite to allow Braken to kill other players while outside the factory .----.
+        [HarmonyPatch(typeof(FlowermanAI), "OnCollideWithPlayer")]
+        [HarmonyPostfix]
+        public static void FlowerManAIOnCollideWithPlayerPatch(FlowermanAI __instance, ref Collider other, bool ___startingKillAnimationLocalClient)
+        {
+            if (true)
+            {
+                PlayerControllerB target = other.gameObject.GetComponent<PlayerControllerB>();
+        
+                if (target != null && !target.isPlayerDead && target.isPlayerControlled)
+                {
+                    if (!__instance.inKillAnimation && !__instance.isEnemyDead && !___startingKillAnimationLocalClient)
+                    {
+                        __instance.KillPlayerAnimationServerRpc((int)target.playerClientId);
+                        ___startingKillAnimationLocalClient = true;
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(JesterAI), "OnCollideWithPlayer")]
+        [HarmonyPostfix]
+        public static void JesterAIOnCollideWithPlayerPatch(JesterAI __instance, ref Collider other, bool ___inKillAnimation)
+        {
+            if (true)
+            {
+                PlayerControllerB target = other.gameObject.GetComponent<PlayerControllerB>();
+        
+                if (target != null && !target.isPlayerDead && target.isPlayerControlled)
+                {
+                    if (!___inKillAnimation && !__instance.isEnemyDead && __instance.currentBehaviourStateIndex == 2)
+                    {
+                        __instance.KillPlayerServerRpc((int)target.playerClientId);
+                        ___inKillAnimation = true;
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(BlobAI), "OnCollideWithPlayer")]
+        [HarmonyPostfix]
+        public static void BlobAIOnCollideWithPlayerPatch(BlobAI __instance, ref Collider other)
+        {
+            if (true)
+            {
+                PlayerControllerB target = other.gameObject.GetComponent<PlayerControllerB>();
+        
+                if (target != null && !target.isPlayerDead && target.isPlayerControlled)
+                {
+                    Type blobinfo = typeof(BlobAI);
+                    FieldInfo timeSinceHittingLocalPlayer = blobinfo.GetField("timeSinceHittingLocalPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo tamedTimer = blobinfo.GetField("tamedTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo angeredTimer = blobinfo.GetField("angeredTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if ((float)timeSinceHittingLocalPlayer.GetValue(__instance) < 0.25f)
+                    {
+                        return;
+                    }
+                    if ((float)tamedTimer.GetValue(__instance) > 0f && (float)angeredTimer.GetValue(__instance) < 0f)
+                    {
+                        return;
+                    }
+                    timeSinceHittingLocalPlayer.SetValue(__instance, 0);
+                    target.DamagePlayer(35, true, true, CauseOfDeath.Unknown, 0, false, default(Vector3));
+                    if (target.isPlayerDead)
+                    {
+                        __instance.SlimeKillPlayerEffectServerRpc((int)target.playerClientId);
+                    }
+                }
+            }
+        }
+
+
+        [HarmonyPatch(typeof(HoarderBugAI), "OnCollideWithPlayer")]
+        [HarmonyPostfix]
+        public static void HoarderBugAIOnCollideWithPlayerPatch(HoarderBugAI __instance, ref Collider other)
+        {
+            if (true)
+            {
+                PlayerControllerB target = other.gameObject.GetComponent<PlayerControllerB>();
+        
+                if (target != null && !target.isPlayerDead && target.isPlayerControlled)
+                {
+                    Type hoarderinfo = typeof(HoarderBugAI);
+                    FieldInfo timeSinceHittingPlayer = hoarderinfo.GetField("timeSinceHittingPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
+                    FieldInfo inChase = hoarderinfo.GetField("inChase", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    if (!(bool)inChase.GetValue(__instance))
+                    {
+                        return;
+                    }
+                    if ((float)timeSinceHittingPlayer.GetValue(__instance) < 0.5f)
+                    {
+                        return;
+                    }
+                    timeSinceHittingPlayer.SetValue(__instance, 0);
+                    target.DamagePlayer(30, true, true, CauseOfDeath.Mauling, 0, false, default(Vector3));
+                    if (target.isPlayerDead)
+                    {
+                        __instance.HitPlayerServerRpc();
+                    }
+                }
+            }
+        }
     }
 }
