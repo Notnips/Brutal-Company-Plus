@@ -4,15 +4,14 @@
 
 #
 **A CUSTOMIZABLE hardcore mod that randomizes events ranging between insanity and normal.**
-- This will be updated constantly with the intent of adding more unique and mind twisting events
-
+- This will be updated constantly with the intent of adding more unique and mind-twisting events.
 
 ## Features
-- Over 20+ Unique Events and Counting
-- Custom Quota Start Values & increased progression rates
-- Increased Spawn Rates
-- Any Moon ALL Enemies
-- Increased Loot Drop Rates
+- Over 20+ Unique Events and Counting.
+- Custom Quota Start Values & increased progression rates.
+- Increased Spawn Rates.
+- Any Moon ALL Enemies.
+- Increased Loot Drop Rates.
 
 ## Brutal Company Plus: Configuration Options
 
@@ -23,11 +22,12 @@
   - `StartingCredits`: Determine the starting credit value for a new game.
   - `StartingQuota`: Set the initial quota value.
   - `BaseIncrease`: Define the quota increase after each deadline.
-- **Scrap Management**:
-  - `MinScrap`: Minimum scrap spawned on moons.
-  - `MaxScrap`: Maximum scrap spawned on moons.
-  - `MinTotalScrapValue`: Minimum total scrap value on moons.
-  - `MaxTotalScrapValue`: Maximum total scrap value on moons.
+
+### Scrap Management
+- `MinScrap`: Minimum scrap spawned on moons.
+- `MaxScrap`: Maximum scrap spawned on moons.
+- `MinTotalScrapValue`: Minimum total scrap value on moons.
+- `MaxTotalScrapValue`: Maximum total scrap value on moons.
 
 ### Enemy Dynamics
 - **Enemy Enablement**: Option to enable all enemies on every moon.
@@ -36,6 +36,8 @@
   - Disable Spawn: `0`
   - Max Spawn Chance: `100`
   - Customize spawn rates (0-100) for each moon.
+  - The higher the chance the more will spawn.
+  - Option to disable Rarity altogether to allow cohesion with other mods if needed or if you just want vanilla rates!
 
 ### Economic Features
 - **Free Money**:
@@ -54,38 +56,18 @@
   - Landmine Spawn Rate (Default: `30` landmines per moon).
 
 ### Instructions
-- The config is called ```BrutalCompanyPlus.cfg```
-- The location of this config can be found based on your Thunderstore Mod Manager Profile Directory
-	- You can navigate to this location by following the following instructions
-		- Goto the profile that contains "Brutal Company Plus"
-		- Click Settings in the left panel
-		- Click the TAB "Locations"
-		- Click "Browse profile folder"
-	- Now you can navigate the directory that was open to get to the ```BrutalCompanyPlus.cfg```
-		- The path you navigate to is ```BepInEx\config\```
-		- Open the ```BrutalCompanyPlus.cfg``` and adjust to your liking!
-		
+- The config file is named `BrutalCompanyPlus.cfg`.
+- Find this config in your Thunderstore Mod Manager Profile Directory:
+  - Go to the profile containing "Brutal Company Plus".
+  - Click Settings in the left panel, then the "Locations" tab.
+  - Click "Browse profile folder".
+  - Navigate to `BepInEx\config\` to find `BrutalCompanyPlus.cfg`.
+  - Open and adjust the config to your liking!
+
 ### IMPORTANT
-- If you made modifications to the config be sure not to make any typos and follow the logic, any mistakes will lead to total mod failure
-- If you changed events around and experience and issue where only event "None" occurs it could be due to a config issue.
-		
-		
+- Avoid typos in the config; errors can lead to total mod failure.
+- Experiencing an issue where only the event "None" occurs could be due to a config issue.
+
 ## Notes
-- As of now this is a HOST ONLY mod, clients will not need this mod at all to enjoy the experience.
-- I will be adding tons of new events as much as I can.
-
-
-## Coming Soon
-
-**Events**
-- Solar Malfunction (The teleporting mechanisms are acting a bit strange... "Wait where am I?")
-- New ideas to come
-
-## Credit
-- This mod was originally based off "Brutal Company" created by: "2018"
-- Logo in the header designed by ```lilboi__``` on Discord.<br>
-**Special thanks to them for their amazing artwork!**
-
-## Contact
-**Discord** ```_nips```
-- Have feedback, bug reports, new event ideas? Shoot me a message, response not guaranteed c:
+- Currently a HOST ONLY mod; clients do not need this mod to enjoy the experience.
+- Continuously adding new and exciting events.
