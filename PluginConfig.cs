@@ -1,139 +1,145 @@
-﻿using System.Collections.Generic;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
+using BrutalCompanyPlus.Config;
+using BrutalCompanyPlus.Utils;
 
 namespace BrutalCompanyPlus;
 
 public static class PluginConfig {
-    // Configuration for Factory Enemies Spawn Chance
-    public static ConfigEntry<float> FactoryStartOfDaySpawnChance { get; private set; }
-    public static ConfigEntry<float> FactoryMidDaySpawnChance { get; private set; }
-    public static ConfigEntry<float> FactoryEndOfDaySpawnChance { get; private set; }
+    [ConfigCategory("Custom Scrap Values")]
+    [SharedDescription(
+        $"Define min/max scrap pieces and min/max total scrap value for {{}} (for vanilla, use: {DefaultValues})")]
+    public static class ScrapValues {
+        public const string DefaultValues = "-1,-1,-1,-1";
 
-    // Configuration for Outside Enemies Spawn Chance
-    public static ConfigEntry<float> OutsideStartOfDaySpawnChance { get; private set; }
-    public static ConfigEntry<float> OutsideMidDaySpawnChance { get; private set; }
-    public static ConfigEntry<float> OutsideEndOfDaySpawnChance { get; private set; }
+        [Configuration<string>("Experimentation", "6,25,400,1500")]
+        public static ConfigEntry<string> ExperimentationLevel => null;
 
-    // Configuration for Moon Heat Settings
-    public static ConfigEntry<float> MoonHeatDecreaseRate { get; private set; }
-    public static ConfigEntry<float> MoonHeatIncreaseRate { get; private set; }
+        [Configuration<string>("Assurance", "6,25,400,1500")]
+        public static ConfigEntry<string> AssuranceLevel => null;
 
-    // Configuration for Object Spawn Rate
-    public static ConfigEntry<bool> EnableTurretModifications { get; private set; }
-    public static ConfigEntry<bool> EnableLandmineModifications { get; private set; }
-    public static ConfigEntry<float> TurretSpawnRate { get; private set; }
-    public static ConfigEntry<float> LandmineSpawnRate { get; private set; }
+        [Configuration<string>("Vow", "6,25,400,1500")]
+        public static ConfigEntry<string> VowLevel => null;
 
-    // Configuration for Factory Enemy Rarity
-    public static ConfigEntry<string> ExperimentationLevelRarities { get; private set; }
-    public static ConfigEntry<string> AssuranceLevelRarities { get; private set; }
-    public static ConfigEntry<string> VowLevelRarities { get; private set; }
-    public static ConfigEntry<string> MarchLevelRarities { get; private set; }
-    public static ConfigEntry<string> RendLevelRarities { get; private set; }
-    public static ConfigEntry<string> DineLevelRarities { get; private set; }
-    public static ConfigEntry<string> OffenseLevelRarities { get; private set; }
-    public static ConfigEntry<string> TitanLevelRarities { get; private set; }
+        [Configuration<string>("Offense", "6,25,400,1500")]
+        public static ConfigEntry<string> OffenseLevel => null;
 
-    // Configuration for Free Money
-    public static ConfigEntry<bool> EnableFreeMoney { get; private set; }
-    public static ConfigEntry<int> FreeMoneyValue { get; private set; }
+        [Configuration<string>("March", "6,25,400,1500")]
+        public static ConfigEntry<string> MarchLevel => null;
 
-    // Configuration for adding all enemies to spawn list
-    public static ConfigEntry<bool> EnableAllEnemy { get; private set; }
+        [Configuration<string>("Rend", "6,25,400,1500")]
+        public static ConfigEntry<string> RendLevel => null;
 
-    // Configuration for Starting Quota Values
-    public static ConfigEntry<int> DeadlineDaysAmount { get; private set; }
-    public static ConfigEntry<int> StartingCredits { get; private set; }
-    public static ConfigEntry<int> StartingQuota { get; private set; }
-    public static ConfigEntry<float> BaseQuotaIncrease { get; private set; }
+        [Configuration<string>("Dine", "6,25,400,1500")]
+        public static ConfigEntry<string> DineLevel => null;
 
-    // Configuration for Scrap Settings
-    public static ConfigEntry<int> MinScrap { get; private set; }
-    public static ConfigEntry<int> MaxScrap { get; private set; }
-    public static ConfigEntry<int> MinTotalScrapValue { get; private set; }
-    public static ConfigEntry<int> MaxTotalScrapValue { get; private set; }
+        [Configuration<string>("Titan", "6,25,400,1500")]
+        public static ConfigEntry<string> TitanLevel => null;
 
-    // Configuration for Event Chance
-    // public static readonly Dictionary<EventEnum, ConfigEntry<int>> EventWeightEntries = new();
+        [Configuration<string>("any custom levels", "6,25,400,1500")]
+        public static ConfigEntry<string> CustomLevel => null;
+    }
+
+    [ConfigCategory("Moon Heat")]
+    public static class MoonHeat {
+        [Configuration<float>("Rate at which the moon heat increases by when landing back on the same planet", 20f)]
+        public static ConfigEntry<float> IncreaseRate => null;
+
+        [Configuration<float>("Rate at which the moon heat decreases by when not visiting the planet", 10f)]
+        public static ConfigEntry<float> DecreaseRate => null;
+
+        [Configuration<string>(
+            "Defines how moon heat affects the weather (format: `start:end:type`, start is inclusive and end is exclusive)",
+            "20:40:Rainy,40:60:Foggy,60:80:Flooded,80:100:Stormy,100:101:Eclipsed")]
+        public static ConfigEntry<string> HeatCurve => null;
+    }
+
+    [ConfigCategory("Map Hazard Adjustments")]
+    public static class MapHazards {
+        [Configuration<int>("Amount of turrets that should be spawned (for vanilla, use: -1)", 8)]
+        public static ConfigEntry<int> TurretSpawnRate => null;
+
+        [Configuration<int>("Amount of landmines that should be spawned (for vanilla, use: -1)", 30)]
+        public static ConfigEntry<int> LandmineSpawnRate => null;
+    }
+
+    [ConfigCategory("Enemy Rarity Values")]
+    [SharedDescription(
+        "Define custom enemy rarity values for {} (no spawn: 0, max chance: 100, BCP default: -1)")]
+    public static class EnemyRarityValues {
+        // Adjust this accordingly every time a new enemy is added. Would be nice if this could be automated.
+        private const string DefaultRarity =
+            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1";
+
+        [Configuration<bool>("Set this to `false` if you want vanilla spawning behavior.", true, true)]
+        public static ConfigEntry<bool> Enabled => null;
+
+        [Configuration<string>("Experimentation", DefaultRarity)]
+        public static ConfigEntry<string> ExperimentationLevel => null;
+
+        [Configuration<string>("Assurance", DefaultRarity)]
+        public static ConfigEntry<string> AssuranceLevel => null;
+
+        [Configuration<string>("Vow", DefaultRarity)]
+        public static ConfigEntry<string> VowLevel => null;
+
+        [Configuration<string>("Offense", DefaultRarity)]
+        public static ConfigEntry<string> OffenseLevel => null;
+
+        [Configuration<string>("March", DefaultRarity)]
+        public static ConfigEntry<string> MarchLevel => null;
+
+        [Configuration<string>("Rend", DefaultRarity)]
+        public static ConfigEntry<string> RendLevel => null;
+
+        [Configuration<string>("Dine", DefaultRarity)]
+        public static ConfigEntry<string> DineLevel => null;
+
+        [Configuration<string>("Titan", DefaultRarity)]
+        public static ConfigEntry<string> TitanLevel => null;
+
+        [Configuration<string>("any custom levels", DefaultRarity)]
+        public static ConfigEntry<string> CustomLevel => null;
+    }
+
+    [ConfigCategory("Credits-related Adjustments")]
+    public static class CreditsAdjustments {
+        [Configuration<int>("Amount of money to give when a player leaves a moon alive (to disable, use: -1)",
+            150)]
+        public static ConfigEntry<int> FreeMoneyAmount => null;
+    }
+
+    [ConfigCategory("Enemy-related Adjustments")]
+    public static class EnemyAdjustments {
+        [Configuration<bool>("Whether all enemies should be nominated for spawning on all moons (vanilla: false)",
+            true)]
+        public static ConfigEntry<bool> SpawnOnAllMoons => null;
+    }
+
+    [ConfigCategory("Quota-related Adjustments")]
+    public static class QuotaAdjustments {
+        [Configuration<int>("Days available before deadline (for vanilla, use: -1)", 4)]
+        public static ConfigEntry<int> DeadlineDays => null;
+
+        [Configuration<int>("Amount of credits everyone gets at the start of a new session (for vanilla, use: -1)",
+            200)]
+        public static ConfigEntry<int> StartingCredits => null;
+
+        [Configuration<int>("Quota you begin with at the start of a new session (for vanilla, use: -1)", 400)]
+        public static ConfigEntry<int> StartingQuota => null;
+
+        [Configuration<int>("Rate at which the quota increases by when it's met (for vanilla, use: -1)", 275)]
+        public static ConfigEntry<int> BaseIncrease => null;
+    }
 
     public static void Bind(Plugin Plugin) {
-        // Configuration for Factory Enemies
-        FactoryStartOfDaySpawnChance = Plugin.Config.Bind("EnemySpawnSettings.Factory", "StartOfDaySpawnChance", -1f,
-            "Factory enemy spawn chance at the start of the day. Set to -1 to use Brutals default value. (vanilla is around 2-5 depending on moon)");
-        FactoryMidDaySpawnChance = Plugin.Config.Bind("EnemySpawnSettings.Factory", "MidDaySpawnChance", -1f,
-            "Factory enemy spawn chance at midday. Set to -1 to use Brutals default value. (vanilla is around 5-10 depending on moon)");
-        FactoryEndOfDaySpawnChance = Plugin.Config.Bind("EnemySpawnSettings.Factory", "EndOfDaySpawnChance", -1f,
-            "Factory enemy spawn chance at the end of the day. Set to -1 to use Brutals default value. (vanilla is around 10-15 depending on moon)");
+        ConfigLoader.Bind(Plugin);
+        // TODO: bind event config
+        Validate();
+    }
 
-        // Configuration for Outside Enemies
-        OutsideStartOfDaySpawnChance = Plugin.Config.Bind("EnemySpawnSettings.Outside", "StartOfDaySpawnChance", -1f,
-            "Outside enemy spawn chance at the start of the day. Set to -1 to use default value. (vanilla is 0)");
-        OutsideMidDaySpawnChance = Plugin.Config.Bind("EnemySpawnSettings.Outside", "MidDaySpawnChance", -1f,
-            "Outside enemy spawn chance at midday. Set to -1 to use default value. (vanilla is 0.5)");
-        OutsideEndOfDaySpawnChance = Plugin.Config.Bind("EnemySpawnSettings.Outside", "EndOfDaySpawnChance", -1f,
-            "Outside enemy spawn chance at the end of the day. Set to -1 to use default value. (vanilla is 5)");
-
-        MoonHeatDecreaseRate = Plugin.Config.Bind("MoonHeatSettings", "MoonHeatDecreaseRate", 10f,
-            "Amount by which moon heat decreases when not visiting the planet");
-        MoonHeatIncreaseRate = Plugin.Config.Bind("MoonHeatSettings", "MoonHeatIncreaseRate", 20f,
-            "Amount by which moon heat increases when landing back on the same planet");
-
-        EnableTurretModifications = Plugin.Config.Bind("MapObjectModificationSettings", "EnableTurretModifications",
-            true, "Enable modifications to turret spawn rates on every moon, False would default to game logic");
-        TurretSpawnRate = Plugin.Config.Bind("MapObjectModificationSettings", "TurretSpawnRate", 8f,
-            "Default spawn amount for turrets on every moon");
-        EnableLandmineModifications = Plugin.Config.Bind("MapObjectModificationSettings", "EnableLandmineModifications",
-            true, "Enable modifications to landmine spawn rates on every moon, False would default to game logic");
-        LandmineSpawnRate = Plugin.Config.Bind("MapObjectModificationSettings", "LandmineSpawnRate", 30f,
-            "Default spawn amount for landmines on every moon");
-
-        ExperimentationLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Experimentation",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Experimentation (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        AssuranceLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Assurance",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Assurance (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        VowLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Vow",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Vow (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        MarchLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "March",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for March (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        RendLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Rend",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Rend (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        DineLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Dine",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Dine (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        OffenseLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Offense",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Offense (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-        TitanLevelRarities = Plugin.Config.Bind("CustomLevelRarities", "Titan",
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,LassoMan:-1",
-            "Define custom enemy rarities for Titan (0 = no spawn, 100 = max chance, -1 = default Brutals rarity)");
-
-        EnableFreeMoney = Plugin.Config.Bind("EventOptions", "EnableFreeMoney", true,
-            "This will give free money everytime survive and escape the planet");
-        FreeMoneyValue = Plugin.Config.Bind("EventOptions", "FreeMoneyValue", 150,
-            "This will control the amount of money you get when EnableFreeMoney is true");
-
-        EnableAllEnemy = Plugin.Config.Bind("EnemySettings", "EnableAllEnemy", true,
-            "This will add every enemy type to each moon as a spawn chance");
-
-        DeadlineDaysAmount =
-            Plugin.Config.Bind("QuotaSettings", "DeadlineDaysAmount", 4, "Days available before deadline");
-        StartingCredits = Plugin.Config.Bind("QuotaSettings", "StartingCredits", 200,
-            "Credits at the start of a new session");
-        StartingQuota =
-            Plugin.Config.Bind("QuotaSettings", "StartingQuota", 400, "Starting quota amount in a new session");
-        BaseQuotaIncrease = Plugin.Config.Bind("QuotaSettings", "BaseIncrease", 275f,
-            "Quota increase after meeting the previous quota");
-
-        MinScrap = Plugin.Config.Bind("ScrapSettings", "MinScrap", 15, "Minimum scraps that can spawn on each moon");
-        MaxScrap = Plugin.Config.Bind("ScrapSettings", "MaxScrap", 75, "Maximum scraps that can spawn on each moon");
-        MinTotalScrapValue = Plugin.Config.Bind("ScrapSettings", "MinTotalScrapValue", 1500,
-            "Minimum total scrap value on the moon");
-        MaxTotalScrapValue = Plugin.Config.Bind("ScrapSettings", "MaxTotalScrapValue", 5000,
-            "Maximum total scrap value on the moon");
+    private static void Validate() {
+        LevelNames.AllCustom.ForEach(ConfigUtils.GetEnemyRarityValues);
+        LevelNames.AllCustom.ForEach(ConfigUtils.GetScrapValues);
+        ConfigUtils.GetMoonHeatCurve();
     }
 }

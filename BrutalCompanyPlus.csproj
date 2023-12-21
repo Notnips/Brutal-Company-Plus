@@ -46,6 +46,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Events\" />
         <Folder Include="ThunderBuild\BepInEx\plugins\"/>
     </ItemGroup>
 

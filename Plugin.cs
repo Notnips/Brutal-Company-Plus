@@ -11,8 +11,8 @@ namespace BrutalCompanyPlus;
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Lethal Company.exe")]
 public class Plugin : BaseUnityPlugin {
-    public new static ManualLogSource Logger;
-    public static GameObject BCNetworkManagerPrefab;
+    internal new static ManualLogSource Logger;
+    internal static GameObject BCNetworkManagerPrefab;
 
     private void Awake() {
         Logger = base.Logger;

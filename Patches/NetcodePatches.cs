@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BrutalCompanyPlus.Patches;
 
 [HarmonyPatch]
-public static class NetcodePatches {
+internal static class NetcodePatches {
     [HarmonyPatch(typeof(GameNetworkManager), "Start")]
     [HarmonyPostfix]
     private static void InjectNetworkManager() {
