@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using BrutalCompanyPlus.Utils;
 using UnityEngine;
-using static BrutalCompanyPlus.PluginConfig;
+using static BrutalCompanyPlus.Config.PluginConfig;
 
 namespace BrutalCompanyPlus.Objects;
 

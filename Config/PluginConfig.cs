@@ -1,8 +1,7 @@
 ﻿using BepInEx.Configuration;
-using BrutalCompanyPlus.Config;
 using BrutalCompanyPlus.Utils;
 
-namespace BrutalCompanyPlus;
+namespace BrutalCompanyPlus.Config;
 
 public static class PluginConfig {
     [ConfigCategory("Custom Scrap Values")]

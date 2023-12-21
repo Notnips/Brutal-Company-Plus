@@ -1,17 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using DunGen;
 using UnityEngine;
 using BrutalCompanyPlus.Utils;
-using static BrutalCompanyPlus.PluginConfig;
+using static BrutalCompanyPlus.Config.PluginConfig;
 
 namespace BrutalCompanyPlus.Objects;
 
 public static class MoonHeatManager {
-    private static readonly IntRange MoonHeatRange = new(0, 100);
-
+    public static readonly IntRange MoonHeatRange = new(0, 100);
     private static readonly Dictionary<SelectableLevel, float> LevelHeatValues = new();
-    private static readonly Dictionary<SelectableLevel, List<SpawnableEnemyWithRarity>> LevelEnemies = new();
 
     public static void InitializeFor(SelectableLevel Level) =>
         LevelHeatValues.TryAdd(Level, 0f);

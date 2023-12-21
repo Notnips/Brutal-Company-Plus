@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using DunGen;
 using UnityEngine;
 
 namespace BrutalCompanyPlus.Utils;
@@ -20,15 +21,16 @@ public static class BcpUtils {
             }
         }
     }
-    
+
     public static bool IsObjectTypeOf<T>(this SpawnableMapObject MapObject, out T Component) {
         Component = MapObject.prefabToSpawn.GetComponentInChildren<T>();
         return Component != null;
     }
 
-    public static bool IsEmpty<T>(this IEnumerable<T> Collection) {
-        return !Collection.Any();
-    }
+    public static bool IntInRange(this IntRange Range, int Value) =>
+        Value >= Range.Min && Value <= Range.Max;
+
+    public static bool IsEmpty<T>(this IEnumerable<T> Collection) => !Collection.Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // force inline
     public static void ForEach<T, TResult>(this IEnumerable<T> Collection, Func<T, TResult> Action) {

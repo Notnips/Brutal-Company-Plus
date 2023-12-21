@@ -2,7 +2,7 @@
 
 using BrutalCompanyPlus.Utils;
 using HarmonyLib;
-using static BrutalCompanyPlus.PluginConfig;
+using static BrutalCompanyPlus.Config.PluginConfig;
 
 namespace BrutalCompanyPlus.Patches;
 

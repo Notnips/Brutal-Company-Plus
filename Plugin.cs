@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
+using BrutalCompanyPlus.Config;
 using BrutalCompanyPlus.Objects;
 using BrutalCompanyPlus.Utils;
 using HarmonyLib;
