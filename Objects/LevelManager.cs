@@ -1,10 +1,26 @@
-﻿using BrutalCompanyPlus.Utils;
+﻿using System.Linq;
+using BrutalCompanyPlus.Utils;
 using UnityEngine;
 using static BrutalCompanyPlus.PluginConfig;
 
 namespace BrutalCompanyPlus.Objects;
 
 public static class LevelManager {
+    public static void AddAllEnemiesToAllLevels() {
+        if (!EnemyAdjustments.SpawnOnAllMoons.Value) return;
+
+        var levels = StartOfRound.Instance.levels;
+        var enemies = levels.SelectMany(Level => Level.Enemies)
+            .GroupBy(Enemy => Enemy.enemyType.enemyName)
+            .Select(Group => Group.First())
+            .ToList();
+
+        foreach (var level in levels) {
+            level.Enemies.Clear();
+            level.Enemies.AddRange(enemies);
+        }
+    }
+
     public static void ApplyEnemyRarityValues(SelectableLevel Level) {
         if (!EnemyRarityValues.Enabled.Value) return;
         var values = ConfigUtils.GetEnemyRarityValues(Level.name);

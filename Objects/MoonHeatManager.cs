@@ -13,10 +13,10 @@ public static class MoonHeatManager {
     private static readonly Dictionary<SelectableLevel, float> LevelHeatValues = new();
     private static readonly Dictionary<SelectableLevel, List<SpawnableEnemyWithRarity>> LevelEnemies = new();
 
-    public static void AdjustHeatValues(SelectableLevel CurrentLevel) {
-        // Initialize moon heat values if they haven't been already
-        InitializeFor(CurrentLevel);
+    public static void InitializeFor(SelectableLevel Level) =>
+        LevelHeatValues.TryAdd(Level, 0f);
 
+    public static void AdjustHeatValues(SelectableLevel CurrentLevel) {
         // Increase the heat of the current level and store the previous value
         var heat = IncreaseHeatValueOf(CurrentLevel);
 
@@ -28,11 +28,6 @@ public static class MoonHeatManager {
 
         // Notify players of the current moon's heat
         NotifyPlayersAndSetWeather(CurrentLevel, heat);
-    }
-
-    private static void InitializeFor(SelectableLevel NewLevel) {
-        if (!LevelHeatValues.TryAdd(NewLevel, 0f)) return;
-        LevelEnemies.TryAdd(NewLevel, NewLevel.Enemies.ToList());
     }
 
     private static float IncreaseHeatValueOf(SelectableLevel Level) {
