@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using BrutalCompanyPlus.Objects;
+using static BrutalCompanyPlus.Objects.MoonHeatManager;
 
 namespace BrutalCompanyPlus.Utils;
 
 public static class ParseHelpers {
     private static readonly string RangeError =
-        $"must be between {MoonHeatManager.MoonHeatRange.Min} and {MoonHeatManager.MoonHeatRange.Max}";
+        $"must be between {MoonHeatRange.Min} and {MoonHeatRange.Max}";
 
     public static (int, int, LevelWeatherType) ParseHeatCurvePoint(string Point) {
         var values = Point.Split(':');
@@ -15,11 +14,11 @@ public static class ParseHelpers {
             throw new ParseException("invalid format");
         if (!int.TryParse(values[0], out var start))
             throw new ParseException("invalid start value");
-        if (!MoonHeatManager.MoonHeatRange.IntInRange(start))
+        if (!MoonHeatRange.IntInRange(start))
             throw new ParseException($"start value out of range, {RangeError}");
         if (!int.TryParse(values[1], out var end))
             throw new ParseException("invalid end value");
-        if (!MoonHeatManager.MoonHeatRange.IntInRange(end))
+        if (!MoonHeatRange.IntInRange(Math.Max(0, end - 1)))
             throw new ParseException($"end value out of range, {RangeError}");
         if (!Enum.TryParse(values[2], out LevelWeatherType type))
             throw new ParseException("invalid weather type");
@@ -50,7 +49,7 @@ public static class ParseHelpers {
 
         if (values.Length != 2)
             throw new ParseException("invalid format");
-        if (!string.IsNullOrEmpty(enemy = values[0]))
+        if (string.IsNullOrEmpty(enemy = values[0]))
             throw new ParseException("invalid enemy name");
         if (!int.TryParse(values[1], out var rarity))
             throw new ParseException("invalid rarity value");
