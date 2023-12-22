@@ -49,7 +49,7 @@ public static class MoonHeatManager {
         ChatUtils.Send("<color=orange>MOON IS AT " + Heat + "% HEAT</color>", Clear: true);
         foreach (var (start, end, type) in ConfigUtils.GetMoonHeatCurve()) {
             if (Heat < start || Heat >= end) continue;
-            CurrentLevel.currentWeather = type; // TODO: network this
+            BCNetworkManager.Instance.SyncWeatherClientRpc(CurrentLevel.levelID, type);
             NotifyChat(type switch {
                 LevelWeatherType.Rainy => "blue",
                 LevelWeatherType.Foggy => "purple",

@@ -46,5 +46,20 @@ public class BCNetworkManager : NetworkBehaviour {
         EventManager.EndEventClient(RoundManager.Instance.currentLevel);
     }
 
+    [ClientRpc]
+    public void SyncWeatherClientRpc(int LevelId, LevelWeatherType WeatherType) {
+        Log($"Syncing weather type {WeatherType} on level {LevelId}...");
+
+        // Parse level id
+        var level = StartOfRound.Instance.levels.ElementAtOrDefault(LevelId);
+        if (level == null) {
+            Log($"Bad level id {LevelId} received from server.");
+            return;
+        }
+
+        // Sync weather
+        level.currentWeather = WeatherType;
+    }
+
     private static void Log(string Message) => Plugin.Logger.LogWarning($"{Tag} {Message}");
 }
