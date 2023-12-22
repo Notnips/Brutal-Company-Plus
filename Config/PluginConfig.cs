@@ -129,9 +129,14 @@ public static class PluginConfig {
         public static ConfigEntry<int> BaseIncrease { get; set; }
     }
 
+    [ConfigCategory("Event Settings")]
+    public static class EventSettings {
+        [Configuration("Chance between 0 and 100 for an event to occur (this is separate from event rarity)", 100, 0, 100)]
+        public static ConfigEntry<int> GlobalChance { get; set; }
+    }
+
     public static void Bind(Plugin Plugin) {
         ConfigLoader.Bind(Plugin);
-        // TODO: bind event config
         Validate();
     }
 

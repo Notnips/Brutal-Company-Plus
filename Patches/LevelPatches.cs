@@ -32,6 +32,12 @@ internal static class LevelPatches {
         // Adjust the level's heat values
         MoonHeatManager.AdjustHeatValues(newLevel);
         // Select a random event for this level and session
-        EventManager.StartNewEvent(newLevel);
+        EventManager.StartEventServer(newLevel);
+    }
+
+    [HarmonyPostfix, HarmonyPatch(typeof(RoundManager), "DespawnPropsAtEndOfRound")]
+    private static void HandleLevelEventEndPatch(ref RoundManager __instance) {
+        if (!__instance.IsHost) return;
+        EventManager.EndEventServer(__instance.currentLevel);
     }
 }

@@ -6,7 +6,7 @@ public static class ChatUtils {
         if (Clear) ChatUtils.Clear();
     }
 
-    public static void Clear() => Send(
+    private static void Clear() => Send(
         "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
     );
 }

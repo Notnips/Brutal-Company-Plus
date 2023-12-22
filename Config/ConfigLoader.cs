@@ -26,9 +26,7 @@ public class Configuration : Attribute {
     public readonly object DefaultValue;
     internal readonly bool ExcludeFromShared;
 
-    [UsedImplicitly]
-    public Configuration(string Name, ConfigDescription Description, object DefaultValue,
-        bool ExcludeFromShared = false) {
+    private Configuration(string Name, ConfigDescription Description, object DefaultValue, bool ExcludeFromShared) {
         this.Name = Name;
         this.Description = Description;
         this.DefaultValue = DefaultValue;
@@ -37,6 +35,11 @@ public class Configuration : Attribute {
 
     public Configuration(string Description, object DefaultValue, bool ExcludeFromShared = false) :
         this(null, new ConfigDescription(Description), DefaultValue, ExcludeFromShared) { }
+
+    public Configuration(string Description, int DefaultValue, int MinValue, int MaxValue,
+        bool ExcludeFromShared = false) : this(null, new ConfigDescription(
+        Description, new AcceptableValueRange<int>(MinValue, MaxValue)
+    ), DefaultValue, ExcludeFromShared) { }
 
     public override string ToString() =>
         $"(name: {Name}, description: {Description.Description}, default: {DefaultValue})";

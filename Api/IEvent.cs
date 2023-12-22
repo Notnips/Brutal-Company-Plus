@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Api;
 
@@ -20,28 +21,29 @@ public interface IEvent {
     public EventPositivity Positivity { get; }
 
     /// <summary>
-    /// The rarity of this event. The higher the rarity, the less likely it is to occur.
+    /// The default rarity of this event. The higher the rarity, the less likely it is to occur.
     /// See <see cref="EventRarity"/> for all possible values.
     /// <para><b>Note: May be overridden by user configuration.</b></para>
     /// </summary>
-    public EventRarity Rarity { get; internal set; }
+    public EventRarity DefaultRarity { get; }
 
     /// <summary>
     /// Execute the event on the server.
     /// </summary>
     /// <param name="Level">the current level</param>
-    public void ExecuteServer(SelectableLevel Level);
+    public void ExecuteServer([UsedImplicitly] SelectableLevel Level);
 
     /// <summary>
     /// Execute the event on the client.
     /// </summary>
     /// <param name="Level">the current level</param>
-    public void ExecuteClient(SelectableLevel Level);
+    public void ExecuteClient([UsedImplicitly] SelectableLevel Level);
 
     /// <summary>
     /// Called when the event is over.
     /// </summary>
-    public void OnEnd();
+    /// <param name="Level">the current level</param>
+    public void OnEnd([UsedImplicitly] SelectableLevel Level) { }
 }
 
 public enum EventPositivity {

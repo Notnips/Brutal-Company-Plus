@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using DunGen;
 using UnityEngine;
 using BrutalCompanyPlus.Utils;
@@ -18,7 +19,7 @@ public static class MoonHeatManager {
         var heat = IncreaseHeatValueOf(CurrentLevel);
 
         // Decrease heat for all levels except the current one
-        foreach (var level in LevelHeatValues.Keys) {
+        foreach (var level in LevelHeatValues.Keys.ToList()) {
             if (CurrentLevel == level) continue;
             DecreaseHeatValueOf(level);
         }
