@@ -24,7 +24,7 @@ public interface IEvent {
     /// See <see cref="EventRarity"/> for all possible values.
     /// <para><b>Note: May be overridden by user configuration.</b></para>
     /// </summary>
-    public EventRarity Rarity { get; }
+    public EventRarity Rarity { get; internal set; }
 
     /// <summary>
     /// Execute the event on the server.
@@ -71,30 +71,30 @@ public enum EventRarity {
     /// For configuration purposes only. <b>Do not use.</b>
     /// </summary>
     [Obsolete("For configuration purposes only. Do not use.")]
-    Default = -1,
+    Disabled = -1,
 
     /// <summary>
     /// This event will occur very often.
     /// </summary>
-    Common = 0,
+    Common = 100,
 
     /// <summary>
     /// This event will occur often.
     /// </summary>
-    Uncommon = 25,
+    Uncommon = 85,
 
     /// <summary>
     /// This event will occur rarely.
     /// </summary>
-    Rare = 50,
+    Rare = 60,
 
     /// <summary>
     /// This event will occur very rarely.
     /// </summary>
-    VeryRare = 75,
+    VeryRare = 40,
 
     /// <summary>
     /// This event will occur extremely rarely.
     /// </summary>
-    UltraRare = 100
+    UltraRare = 20
 }

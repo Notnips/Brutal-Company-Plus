@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using BepInEx.Configuration;
 using BrutalCompanyPlus.Utils;
+using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Config;
 
@@ -23,10 +24,12 @@ public class Configuration<T> : System.Attribute where T : notnull {
     public readonly T DefaultValue;
     internal readonly bool ExcludeFromShared;
 
+    [UsedImplicitly]
     public Configuration(string Name, ConfigDescription Description, T DefaultValue, bool ExcludeFromShared = false) {
         this.Name = Name;
         this.Description = Description;
         this.DefaultValue = DefaultValue;
+        this.ExcludeFromShared = ExcludeFromShared;
     }
 
     public Configuration(string Description, T DefaultValue, bool ExcludeFromShared = false) :
@@ -40,13 +43,13 @@ public static class ConfigLoader {
     public static void Bind(Plugin Plugin) {
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
             if (!type.TryGetAttribute(out ConfigCategory category)) continue;
-            Plugin.Logger.LogWarning($"Binding config for {type.Name}...");
+            Plugin.Logger.LogInfo($"Binding config for {type.Name}...");
 
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Static);
-            Plugin.Logger.LogWarning($"Found {properties.Length} properties...");
+            Plugin.Logger.LogInfo($"Found {properties.Length} properties...");
             foreach (var prop in properties) {
                 if (!type.TryGetAttribute(out Configuration<object> config)) continue;
-                Plugin.Logger.LogWarning($"Binding config for {type.Name}...");
+                Plugin.Logger.LogInfo($"Binding config for {type.Name}...");
 
                 if (string.IsNullOrEmpty(config.Name)) config.Name = prop.Name;
                 if (!config.ExcludeFromShared && type.TryGetAttribute(out SharedDescription description)) {
@@ -57,7 +60,7 @@ public static class ConfigLoader {
                     );
                 }
 
-                Plugin.Logger.LogWarning($"Binding config for {type.Name}/{prop.Name}: {config}");
+                Plugin.Logger.LogInfo($"Binding config for {type.Name}/{prop.Name}: {config}");
                 var entry = Plugin.Config.Bind(category.Name, config.Name, config.DefaultValue, config.Description);
                 prop.SetValue(null, entry);
             }

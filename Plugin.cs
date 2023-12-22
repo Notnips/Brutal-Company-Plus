@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
+using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Config;
 using BrutalCompanyPlus.Objects;
 using BrutalCompanyPlus.Utils;
@@ -18,7 +19,7 @@ public class Plugin : BaseUnityPlugin {
     private void Awake() {
         Logger = base.Logger;
         PluginConfig.Bind(this);
-        // EventRegistry.Initialize();
+        EventRegistry.AutoRegister(this);
         BcpUtils.InitializeNetcode();
         InitializeBCNetworkManager();
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
