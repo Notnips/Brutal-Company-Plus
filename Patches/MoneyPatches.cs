@@ -42,7 +42,7 @@ internal static class QuotaPatches {
         // All players are alive, compensate accordingly
         ChatUtils.Send("<size=10><color=green>You survived another day! Here's your compensation :)</color></size>",
             Clear: true);
-        var terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
+        var terminal = Singleton.Terminal;
         terminal.groupCredits += CreditsAdjustments.FreeMoneyAmount.Value;
         terminal.SyncGroupCreditsServerRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);
     }
