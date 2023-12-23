@@ -7,6 +7,8 @@ namespace BrutalCompanyPlus.Objects;
 public static class EventManager {
     internal static IEvent CurrentEvent;
 
+    public static bool IsActive<T>() where T : IEvent => CurrentEvent is T;
+
     public static void StartEventServer(SelectableLevel Level) {
         var @event = SelectRandomEvent(Level);
         if (@event == null) return;
