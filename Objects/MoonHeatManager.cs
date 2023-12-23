@@ -14,6 +14,12 @@ public static class MoonHeatManager {
     public static void InitializeFor(SelectableLevel Level) =>
         LevelHeatValues.TryAdd(Level, 0f);
 
+    public static void ResetHeatValues() {
+        foreach (var level in LevelHeatValues.Keys.ToList()) {
+            LevelHeatValues[level] = 0f;
+        }
+    }
+
     public static void AdjustHeatValues(SelectableLevel CurrentLevel) {
         // Increase the heat of the current level and store the previous value
         var heat = IncreaseHeatValueOf(CurrentLevel);
