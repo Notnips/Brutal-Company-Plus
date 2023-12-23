@@ -73,7 +73,7 @@ public enum EventRarity {
     /// For configuration purposes only. <b>Do not use.</b>
     /// </summary>
     [Obsolete("For configuration purposes only. Do not use.")]
-    Disabled = -1,
+    Disabled = 0,
 
     /// <summary>
     /// This event will occur very often.

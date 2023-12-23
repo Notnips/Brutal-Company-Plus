@@ -16,8 +16,5 @@ internal static class EventConfig {
                 Category, @event.Name, @event.DefaultRarity, @event.Description
             ).Value;
         }
-
-        // Remove disabled events
-        Events.RemoveAll(Event => Event.GetRarity() == EventRarity.Disabled);
     }
 }

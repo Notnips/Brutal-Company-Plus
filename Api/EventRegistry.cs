@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using BepInEx;
 using BrutalCompanyPlus.Config;
+using BrutalCompanyPlus.Events;
 using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Api;
@@ -53,6 +54,6 @@ public static class EventRegistry {
         }
 
         Plugin.Logger.LogFatal($"Failed to get random event! (totalRarity: {totalRarity}, random: {random})");
-        return null;
+        return GetEvent<NoneEvent>();
     }
 }
