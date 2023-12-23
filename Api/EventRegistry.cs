@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using BepInEx;
 using BrutalCompanyPlus.Config;
 using BrutalCompanyPlus.Events;
+using BrutalCompanyPlus.Objects;
 using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Api;
@@ -42,8 +43,9 @@ public static class EventRegistry {
 
     public static IEvent GetEvent(int EventId) => RegisteredEvents.ElementAtOrDefault(EventId);
 
-    public static EventRarity GetRarity(this IEvent Event) => EventRarityValues[Event];
+    private static EventRarity GetRarity(this IEvent Event) => EventRarityValues[Event];
     public static int GetId(this IEvent Event) => RegisteredEvents.IndexOf(Event);
+    public static bool IsActive(this IEvent Event) => EventManager.CurrentEvent == Event;
 
     internal static IEvent GetRandomEvent() {
         var totalRarity = RegisteredEvents.Sum(Event => (int)Event.GetRarity());

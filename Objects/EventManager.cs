@@ -5,7 +5,7 @@ using static BrutalCompanyPlus.Config.PluginConfig;
 namespace BrutalCompanyPlus.Objects;
 
 public static class EventManager {
-    private static IEvent _currentEvent;
+    internal static IEvent CurrentEvent;
 
     public static void StartEventServer(SelectableLevel Level) {
         var @event = SelectRandomEvent(Level);
@@ -14,26 +14,26 @@ public static class EventManager {
         BCNetworkManager.Instance.StartEventClientRpc(@event.GetId(), Level.levelID);
         @event.ExecuteServer(Level);
         NotifyEventStarted(@event);
-        _currentEvent = @event;
+        CurrentEvent = @event;
     }
 
     public static void EndEventServer(SelectableLevel Level) {
-        Plugin.Logger.LogWarning($"Ending event {_currentEvent.Name}... (server)");
+        Plugin.Logger.LogWarning($"Ending event {CurrentEvent.Name}... (server)");
         BCNetworkManager.Instance.EndEventClientRpc();
-        _currentEvent.OnEnd(Level);
-        _currentEvent = null;
+        CurrentEvent.OnEnd(Level);
+        CurrentEvent = null;
     }
 
     public static void StartEventClient(SelectableLevel Level, IEvent Event) {
         Plugin.Logger.LogWarning($"Starting event {Event.Name}... (client)");
         Event.ExecuteClient(Level);
-        _currentEvent = Event;
+        CurrentEvent = Event;
     }
 
     public static void EndEventClient(SelectableLevel Level) {
-        Plugin.Logger.LogWarning($"Ending event {_currentEvent.Name}... (client)");
-        _currentEvent.OnEnd(Level);
-        _currentEvent = null;
+        Plugin.Logger.LogWarning($"Ending event {CurrentEvent.Name}... (client)");
+        CurrentEvent.OnEnd(Level);
+        CurrentEvent = null;
     }
 
     private static IEvent SelectRandomEvent(SelectableLevel Level) {
