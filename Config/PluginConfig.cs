@@ -131,7 +131,8 @@ public static class PluginConfig {
 
     [ConfigCategory("Event Settings")]
     public static class EventSettings {
-        [Configuration("Chance between 0 and 100 for an event to occur (this is separate from event rarity)", 100, 0, 100)]
+        [Configuration("Chance between 0 and 100 for an event to occur (this is separate from event rarity)",
+            100, 0, 100)]
         public static ConfigEntry<int> GlobalChance { get; set; }
     }
 
