@@ -15,7 +15,7 @@ public static class ConfigUtils {
         return true;
     }
 
-    public static Dictionary<string, int> GetEnemyRarityValues(string LevelName) {
+    internal static Dictionary<string, int> GetEnemyRarityValues(string LevelName) {
         var entries = (LevelName switch {
             LevelNames.Experimentation => EnemyRarityValues.ExperimentationLevel,
             LevelNames.Assurance => EnemyRarityValues.AssuranceLevel,
@@ -43,7 +43,7 @@ public static class ConfigUtils {
         return values; // return empty dictionary
     }
 
-    public static (int, int, int, int) GetScrapValues(string LevelName) {
+    internal static (int, int, int, int) GetScrapValues(string LevelName) {
         var entries = (LevelName switch {
             LevelNames.Experimentation => ScrapValues.ExperimentationLevel,
             LevelNames.Assurance => ScrapValues.AssuranceLevel,
@@ -70,7 +70,7 @@ public static class ConfigUtils {
         }
     }
 
-    public static List<(int, int, LevelWeatherType)> GetMoonHeatCurve() {
+    internal static List<(int, int, LevelWeatherType)> GetMoonHeatCurve() {
         var curve = new List<(int, int, LevelWeatherType)>();
         foreach (var point in MoonHeat.HeatCurve.Value.Split(',')) {
             try {

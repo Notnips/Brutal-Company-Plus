@@ -1,27 +1,43 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BrutalCompanyPlus.Utils;
 using UnityEngine;
 using static BrutalCompanyPlus.Config.PluginConfig;
 
 namespace BrutalCompanyPlus.Objects;
 
-public static class LevelManager {
-    public static void AddAllEnemiesToAllLevels() {
-        if (!EnemyAdjustments.SpawnOnAllMoons.Value) return;
+internal static class LevelManager {
+    private static List<SpawnableEnemyWithRarity> _allEnemies;
 
-        var levels = StartOfRound.Instance.levels;
-        var enemies = levels.SelectMany(Level => Level.Enemies)
+    /// <summary>
+    /// Tries to get the <see cref="EnemyType"/> of the specified <see cref="EnemyAI"/> type.
+    /// <para><b>This is an expensive operation and should not be called often.</b></para>
+    /// </summary>
+    /// <param name="EnemyType">the enemy type, if found</param>
+    /// <typeparam name="T">type of the enemy</typeparam>
+    /// <returns>true if the enemy was found</returns>
+    public static bool TryGetEnemy<T>(out EnemyType EnemyType) where T : EnemyAI {
+        EnemyType = _allEnemies.FirstOrDefault(Enemy => Enemy.enemyType.enemyPrefab.GetComponent<T>() != null)?
+            .enemyType;
+        return EnemyType != null;
+    }
+
+    internal static void AddAllEnemiesToAllLevels(SelectableLevel[] Levels) {
+        // NOTE: Make sure this code runs, even if SpawnOnAllMoons is disabled.
+        // It's needed further down the line.
+        _allEnemies = Levels.SelectMany(Level => Level.Enemies)
             .GroupBy(Enemy => Enemy.enemyType.enemyName)
             .Select(Group => Group.First())
             .ToList();
 
-        foreach (var level in levels) {
+        if (!EnemyAdjustments.SpawnOnAllMoons.Value) return;
+        foreach (var level in Levels) {
             level.Enemies.Clear();
-            level.Enemies.AddRange(enemies);
+            level.Enemies.AddRange(_allEnemies);
         }
     }
 
-    public static void ApplyEnemyRarityValues(SelectableLevel Level) {
+    internal static void ApplyEnemyRarityValues(SelectableLevel Level) {
         if (!EnemyRarityValues.Enabled.Value) return;
         var values = ConfigUtils.GetEnemyRarityValues(Level.name);
         var levelName = Level.name;
@@ -45,7 +61,7 @@ public static class LevelManager {
         }
     }
 
-    public static void ApplyEnemySpawnRates(SelectableLevel Level) {
+    internal static void ApplyEnemySpawnRates(SelectableLevel Level) {
         Level.enemySpawnChanceThroughoutDay = new AnimationCurve(
             new Keyframe(0f, 0.1f),
             new Keyframe(0.5f, 10f),
@@ -74,7 +90,7 @@ public static class LevelManager {
         }
     }
 
-    public static void ApplyLevelProperties(SelectableLevel Level) {
+    internal static void ApplyLevelProperties(SelectableLevel Level) {
         var (min, max, minTotal, maxTotal) = ConfigUtils.GetScrapValues(Level.name);
 
         ApplyIfSet(ref Level.minScrap, min);

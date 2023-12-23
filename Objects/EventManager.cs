@@ -49,7 +49,7 @@ public static class EventManager {
         return chance > EventSettings.GlobalChance.Value
             // Random chance exceeded configured chance, so no event.
             ? EventRegistry.GetEvent<NoneEvent>()
-            // If all events are equally likely;
+            // If all events are equally likely to happen;
             : EventSettings.EqualChance.Value
                 // just return a random event.
                 ? EventRegistry.GetRandomEventWithoutRarity()

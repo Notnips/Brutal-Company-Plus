@@ -12,7 +12,7 @@ internal static class LevelPatches {
         // Make sure we're the host
         if (!__instance.IsHost) return;
         // Add all enemies to all levels (if enabled)
-        LevelManager.AddAllEnemiesToAllLevels();
+        LevelManager.AddAllEnemiesToAllLevels(__instance.levels);
         foreach (var level in __instance.levels) {
             // Initialize moon heat values
             MoonHeatManager.InitializeFor(level);

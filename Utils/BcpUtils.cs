@@ -9,7 +9,7 @@ using UnityEngine;
 namespace BrutalCompanyPlus.Utils;
 
 public static class BcpUtils {
-    public static void InitializeNetcode() {
+    internal static void InitializeNetcode() {
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
             var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
             foreach (var method in methods) {
@@ -31,6 +31,15 @@ public static class BcpUtils {
         Value >= Range.Min && Value <= Range.Max;
 
     public static bool IsEmpty<T>(this IEnumerable<T> Collection) => !Collection.Any();
+
+    public static List<T> TakeIf<T>(this List<T> List, Func<T, bool> Predicate) {
+        var items = List.Where(Predicate).ToList();
+        List.RemoveAll(E => Predicate(E));
+        return items;
+    }
+
+    public static T Random<T>(this List<T> List) => List[UnityEngine.Random.Range(0, List.Count)];
+    public static T Random<T>(this T[] Array) => Array[UnityEngine.Random.Range(0, Array.Length)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // force inline
     public static void ForEach<T, TResult>(this IEnumerable<T> Collection, Func<T, TResult> Action) {

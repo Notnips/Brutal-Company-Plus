@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace BrutalCompanyPlus.Utils;
 
-public static class LevelDefaults {
+internal static class LevelDefaults {
     // @formatter:off
-    public static readonly Dictionary<string, Dictionary<string, int>> DefaultEnemyRarityValues = new() {
+    internal static readonly Dictionary<string, Dictionary<string, int>> DefaultEnemyRarityValues = new() {
         { LevelNames.Experimentation, new() {
             { "Centipede", 50 }, { "Bunker Spider", 75 }, { "Hoarding bug", 80 }, { "Flowerman", 30 }, { "Crawler", 15 }, { "Blob", 25 }, { "Girl", 2 },
             { "Puffer", 10 }, { "Nutcracker", 15 }, { "Spring", 5 }, { "Jester", 1 }, { "Masked", 1 }

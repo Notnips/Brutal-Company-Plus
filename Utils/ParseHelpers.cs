@@ -3,11 +3,11 @@ using static BrutalCompanyPlus.Objects.MoonHeatManager;
 
 namespace BrutalCompanyPlus.Utils;
 
-public static class ParseHelpers {
+internal static class ParseHelpers {
     private static readonly string RangeError =
         $"must be between {MoonHeatRange.Min} and {MoonHeatRange.Max}";
 
-    public static (int, int, LevelWeatherType) ParseHeatCurvePoint(string Point) {
+    internal static (int, int, LevelWeatherType) ParseHeatCurvePoint(string Point) {
         var values = Point.Split(':');
 
         if (values.Length != 3)
@@ -26,7 +26,7 @@ public static class ParseHelpers {
         return (start, end, type);
     }
 
-    public static (int, int, int, int) ParseScrapValues(string Entries) {
+    internal static (int, int, int, int) ParseScrapValues(string Entries) {
         var values = Entries.Split(',');
 
         if (values.Length != 4)
@@ -43,7 +43,7 @@ public static class ParseHelpers {
         return (minScrap, maxScrap, minTotalScrapValue, maxTotalScrapValue);
     }
 
-    public static (string, int) ParseEnemyRarityEntry(string Entry) {
+    internal static (string, int) ParseEnemyRarityEntry(string Entry) {
         var values = Entry.Split(':');
         string enemy; // initialized below
 
@@ -58,7 +58,7 @@ public static class ParseHelpers {
     }
 }
 
-public class ParseException : Exception {
+internal class ParseException : Exception {
     public ParseException(string Message) : base(Message) { }
     public override string ToString() => Message;
 }

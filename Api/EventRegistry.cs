@@ -7,6 +7,7 @@ using BepInEx;
 using BrutalCompanyPlus.Config;
 using BrutalCompanyPlus.Events;
 using BrutalCompanyPlus.Objects;
+using BrutalCompanyPlus.Utils;
 using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Api;
@@ -67,6 +68,5 @@ public static class EventRegistry {
     /// Returns a random event without taking their rarity into account.
     /// </summary>
     /// <returns>a random event</returns>
-    internal static IEvent GetRandomEventWithoutRarity() =>
-        RegisteredEvents[UnityEngine.Random.Range(0, RegisteredEvents.Count)];
+    internal static IEvent GetRandomEventWithoutRarity() => RegisteredEvents.Random();
 }
