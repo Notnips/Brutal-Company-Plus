@@ -47,6 +47,10 @@ public static class EventRegistry {
     public static int GetId(this IEvent Event) => RegisteredEvents.IndexOf(Event);
     public static bool IsActive(this IEvent Event) => EventManager.CurrentEvent == Event;
 
+    /// <summary>
+    /// Returns a random event based on their rarity.
+    /// </summary>
+    /// <returns>a random event</returns>
     internal static IEvent GetRandomEvent() {
         var totalRarity = RegisteredEvents.Sum(Event => (int)Event.GetRarity());
         var random = UnityEngine.Random.Range(0, totalRarity);
@@ -58,4 +62,11 @@ public static class EventRegistry {
         Plugin.Logger.LogFatal($"Failed to get random event! (totalRarity: {totalRarity}, random: {random})");
         return GetEvent<NoneEvent>();
     }
+
+    /// <summary>
+    /// Returns a random event without taking their rarity into account.
+    /// </summary>
+    /// <returns>a random event</returns>
+    internal static IEvent GetRandomEventWithoutRarity() =>
+        RegisteredEvents[UnityEngine.Random.Range(0, RegisteredEvents.Count)];
 }

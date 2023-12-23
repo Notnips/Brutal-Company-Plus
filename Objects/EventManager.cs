@@ -43,9 +43,16 @@ public static class EventManager {
         }
 
         var chance = UnityEngine.Random.Range(0, /* exclusive */ 101);
-        return chance <= EventSettings.GlobalChance.Value
+        // Roll a dice to see if an event should happen at all.
+        return chance > EventSettings.GlobalChance.Value
+            // Random chance exceeded configured chance, so no event.
             ? EventRegistry.GetEvent<NoneEvent>()
-            : EventRegistry.GetRandomEvent();
+            // If all events are equally likely;
+            : EventSettings.EqualChance.Value
+                // just return a random event.
+                ? EventRegistry.GetRandomEventWithoutRarity()
+                // Otherwise, return a random event based on their rarity.
+                : EventRegistry.GetRandomEvent();
     }
 
     private static void NotifyEventStarted(IEvent Event) {
