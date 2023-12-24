@@ -44,7 +44,7 @@ public class BCNetworkManager : NetworkBehaviour {
         // so set isOutside and allAINodes as well, just in case.
         enemy.enemyType.isOutsideEnemy = IsOutside;
         enemy.isOutside = IsOutside;
-        enemy.allAINodes = GameObject.FindGameObjectsWithTag("AINode");
+        enemy.allAINodes = GameObject.FindGameObjectsWithTag(IsOutside ? "OutsideAINode" : "AINode");
     }
 
     [ClientRpc]
