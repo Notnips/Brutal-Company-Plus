@@ -22,11 +22,26 @@ public class BlobEvolutionEvent : IEvent {
     public EventRarity DefaultRarity => EventRarity.Uncommon;
 
     public void ExecuteServer(SelectableLevel Level) {
+        SetBlobEnemyTag();
         EnemySpawnManager.DraftEnemySpawn<BlobAI>(new EnemySpawnManager.SpawnInfo(3));
         EnemySpawnManager.DraftEnemySpawn<BlobAI>(new EnemySpawnManager.SpawnInfo(1, Outside: true));
     }
 
-    public void ExecuteClient(SelectableLevel Level) { }
+    public void ExecuteClient(SelectableLevel Level) => SetBlobEnemyTag();
+
+    public void OnEnd(SelectableLevel Level) {
+        SetBlobEnemyTag(Unset: true);
+    }
+
+    private static void SetBlobEnemyTag(bool Unset = false) {
+        if (!LevelManager.TryGetEnemy<BlobAI>(out var blob)) return;
+        var newTag = Unset ? "Untagged" : "Enemy";
+        var armature = blob.enemyPrefab.transform.Find("Armature");
+        armature.gameObject.tag = newTag;
+        foreach (var child in armature.GetComponentsInChildren<EnemyAICollisionDetect>()) {
+            child.gameObject.tag = newTag;
+        }
+    }
 
     [HarmonyPostfix, HarmonyPatch(typeof(BlobAI), "Update")]
     private static void EnemyAIPatch(ref BlobAI __instance) {
