@@ -1,16 +1,12 @@
-﻿// ReSharper disable InconsistentNaming
-
-using BrutalCompanyPlus.Api;
+﻿using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Utils;
 using GameNetcodeStuff;
-using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BrutalCompanyPlus.Events;
 
 [UsedImplicitly]
-[HarmonyPatch]
 public class HungerGamesEvent : IEvent {
     private PlayerControllerB _currentTarget;
     private bool _playerKilled;

@@ -1,6 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
-
-using BrutalCompanyPlus.Api;
+﻿using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Objects;
 using JetBrains.Annotations;
 
