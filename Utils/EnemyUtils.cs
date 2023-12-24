@@ -13,13 +13,12 @@ internal static class EnemyUtils {
         var spawnRotation = Quaternion.Euler(0, vent.floorNode.eulerAngles.y, 0);
         // Spawn the enemy.
         var enemyObj = Object.Instantiate(EnemyPrefab, spawnPosition, spawnRotation);
-        var networkObj = enemyObj.GetComponentInChildren<NetworkObject>();
-        networkObj.Spawn(true);
+        enemyObj.GetComponentInChildren<NetworkObject>().Spawn(true);
         // Retrieve the enemy AI component.
         var enemyAi = enemyObj.GetComponent<EnemyAI>();
         // We might be forcing an outside enemy to spawn inside, so ensure this is set to false.
         enemyAi.enemyType.isOutsideEnemy = false;
-        BCNetworkManager.Instance.SyncEnemyTypeClientRpc(networkObj.NetworkObjectId, false);
+        BCNetworkManager.Instance.SyncEnemyTypeClientRpc(enemyAi, false);
         // Add the enemy to the list of spawned enemies.
         Instance.SpawnedEnemies.Add(enemyAi);
     }
@@ -29,13 +28,12 @@ internal static class EnemyUtils {
         var node = GameObject.FindGameObjectsWithTag("OutsideAINode").Random();
         // Spawn the enemy.
         var enemyObj = Object.Instantiate(EnemyPrefab, node.transform.position, Quaternion.identity);
-        var networkObj = enemyObj.GetComponentInChildren<NetworkObject>();
-        networkObj.Spawn(true);
+        enemyObj.GetComponentInChildren<NetworkObject>().Spawn(true);
         // Retrieve the enemy AI component.
         var enemyAi = enemyObj.GetComponent<EnemyAI>();
         // We might be forcing an inside enemy to spawn outside, so ensure this is set to true.
         enemyAi.enemyType.isOutsideEnemy = true;
-        BCNetworkManager.Instance.SyncEnemyTypeClientRpc(networkObj.NetworkObjectId, true);
+        BCNetworkManager.Instance.SyncEnemyTypeClientRpc(enemyAi, true);
         // Add the enemy to the list of spawned enemies.
         Instance.SpawnedEnemies.Add(enemyAi);
     }

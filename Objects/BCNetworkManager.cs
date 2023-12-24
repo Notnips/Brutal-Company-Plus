@@ -1,6 +1,5 @@
 ﻿// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
-using System;
 using System.Linq;
 using BrutalCompanyPlus.Api;
 using Unity.Netcode;
@@ -25,18 +24,13 @@ public class BCNetworkManager : NetworkBehaviour {
     }
 
     [ClientRpc]
-    public void SyncEnemyTypeClientRpc(ulong NetworkId, bool IsOutside) {
+    public void SyncEnemyTypeClientRpc(NetworkBehaviourReference Reference, bool IsOutside) {
         if (IsServer || IsHost) return; // only clients should execute this
-        Log($"Syncing enemy type (id: {NetworkId}, outside: {IsOutside})... (client)");
-        if (!NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(NetworkId, out var networkObject)) {
-            Log($"Bad network id {NetworkId} received from server.");
-            return;
-        }
+        Log($"Syncing enemy type (outside: {IsOutside})... (client)");
 
         // Get the enemy AI component
-        var enemy = networkObject.GetComponent<EnemyAI>();
-        if (enemy == null) {
-            Log($"Bad enemy received from server (id: {NetworkId}).");
+        if (!Reference.TryGet(out EnemyAI enemy)) {
+            Log("Bad enemy received from server.");
             return;
         }
 
