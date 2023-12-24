@@ -25,7 +25,8 @@ internal static class LevelPatches {
         }
     }
 
-    [HarmonyPrefix, HarmonyPatch(typeof(RoundManager), "LoadNewLevel")]
+    // Ensure we're ran last, so other mods don't clear the chat.
+    [HarmonyPrefix, HarmonyPriority(Priority.Last), HarmonyPatch(typeof(RoundManager), "LoadNewLevel")]
     private static void SelectLevelEventPatch(ref RoundManager __instance, ref SelectableLevel newLevel) {
         // Make sure we're the host
         if (!__instance.IsHost) return;
