@@ -51,6 +51,7 @@ public class OutsideTheBoxEvent : IEvent {
             il[i - 1] = new CodeInstruction(OpCodes.Ldarg_0);
             // Insert a new instruction to call our hook method
             il.Insert(i, new CodeInstruction(OpCodes.Call, hookMethod));
+            // This makes "if (... && HookResetFlag(StartOfRound.Instance.allPlayerScripts[i], this))"
             // We only need to do this once, so we're done here.
             ok = true;
             break;
