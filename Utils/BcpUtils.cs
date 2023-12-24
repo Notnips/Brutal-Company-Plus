@@ -22,6 +22,12 @@ public static class BcpUtils {
         }
     }
 
+    public static Vector3 GetNearbyLocation(Vector3 Location) {
+        const float offsetDistance = 10.0f;
+        var offset = UnityEngine.Random.insideUnitSphere * offsetDistance;
+        return Location + offset;
+    }
+
     public static GameObject FindObjectPrefab<T>(this SelectableLevel Level) where T : MonoBehaviour {
         foreach (var mapObject in Level.spawnableMapObjects) {
             if (!mapObject.IsObjectTypeOf<T>(out _)) continue;
