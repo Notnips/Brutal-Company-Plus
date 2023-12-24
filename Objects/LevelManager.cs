@@ -9,7 +9,7 @@ namespace BrutalCompanyPlus.Objects;
 
 internal static class LevelManager {
     private static List<SpawnableEnemyWithRarity> _allEnemies;
-    private static readonly List<Action> UndoPropertyCallbacks = new();
+    private static readonly Dictionary<string, Action> UndoPropertyCallbacks = new();
 
     /// <summary>
     /// Tries to get the <see cref="EnemyType"/> of the specified <see cref="EnemyAI"/> type.
@@ -36,7 +36,8 @@ internal static class LevelManager {
         var originalValues = new Dictionary<string, object>();
         foreach (var dependency in Dependencies) {
             var property = Level.GetType().GetProperty(dependency);
-            originalValues[dependency] = property!.GetValue(Level);
+            if (!originalValues.TryAdd(dependency, property!.GetValue(Level)))
+                throw new Exception($"Property '{dependency}' mentioned twice in dependencies array!");
         }
 
         // Apply the changes.
@@ -48,13 +49,17 @@ internal static class LevelManager {
             var originalValue = originalValues[dependency];
             var newValue = property!.GetValue(Level);
             if (originalValue.Equals(newValue)) continue;
-            UndoPropertyCallbacks.Add(() => property.SetValue(Level, originalValue));
+            if (!UndoPropertyCallbacks.TryAdd(dependency, () => property.SetValue(Level, originalValue))) {
+                throw new Exception(
+                    $"Property '{dependency}' already contains an undo callback! " +
+                    $"Did you call {nameof(ModifyLevelProperties)} twice on the same property?");
+            }
         }
     }
 
     internal static void UndoLevelPropertyChanges() {
         Plugin.Logger.LogDebug("Undoing level property changes... (server)");
-        foreach (var callback in UndoPropertyCallbacks) callback();
+        foreach (var callback in UndoPropertyCallbacks.Values) callback();
         UndoPropertyCallbacks.Clear();
     }
 
