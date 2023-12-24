@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrutalCompanyPlus.Utils;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace BrutalCompanyPlus.Objects;
 
 internal static class LevelManager {
     private static List<SpawnableEnemyWithRarity> _allEnemies;
+    private static readonly List<Action> UndoPropertyCallbacks = new();
 
     /// <summary>
     /// Tries to get the <see cref="EnemyType"/> of the specified <see cref="EnemyAI"/> type.
@@ -20,6 +22,40 @@ internal static class LevelManager {
         EnemyType = _allEnemies.FirstOrDefault(Enemy => Enemy.enemyType.enemyPrefab.GetComponent<T>() != null)?
             .enemyType;
         return EnemyType != null;
+    }
+
+    /// <summary>
+    /// Allows you to modify the properties of a level, and automatically undo the changes when the event ends.
+    /// </summary>
+    /// <param name="Level">the level you want to modify</param>
+    /// <param name="Effect">the modification function</param>
+    /// <param name="Dependencies">the names of the properties you've changed</param>
+    public static void ModifyLevelProperties(SelectableLevel Level, Action<SelectableLevel> Effect,
+        params string[] Dependencies) {
+        // Store the original values of the properties we're about to change.
+        var originalValues = new Dictionary<string, object>();
+        foreach (var dependency in Dependencies) {
+            var property = Level.GetType().GetProperty(dependency);
+            originalValues[dependency] = property!.GetValue(Level);
+        }
+
+        // Apply the changes.
+        Effect(Level);
+
+        // Add a callback to undo the changes when the event ends.
+        foreach (var dependency in Dependencies) {
+            var property = Level.GetType().GetProperty(dependency);
+            var originalValue = originalValues[dependency];
+            var newValue = property!.GetValue(Level);
+            if (originalValue.Equals(newValue)) continue;
+            UndoPropertyCallbacks.Add(() => property.SetValue(Level, originalValue));
+        }
+    }
+
+    internal static void UndoLevelPropertyChanges() {
+        Plugin.Logger.LogDebug("Undoing level property changes... (server)");
+        foreach (var callback in UndoPropertyCallbacks) callback();
+        UndoPropertyCallbacks.Clear();
     }
 
     internal static void AddAllEnemiesToAllLevels(SelectableLevel[] Levels) {

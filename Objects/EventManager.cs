@@ -23,6 +23,7 @@ public static class EventManager {
         Plugin.Logger.LogWarning($"Ending event {CurrentEvent.Name}... (server)");
         BCNetworkManager.Instance.EndEventClientRpc();
         CurrentEvent.OnEnd(Level);
+        LevelManager.UndoLevelPropertyChanges();
         CurrentEvent = null;
     }
 
