@@ -66,15 +66,20 @@ internal static class LevelManager {
     internal static void AddAllEnemiesToAllLevels(SelectableLevel[] Levels) {
         // NOTE: Make sure this code runs, even if SpawnOnAllMoons is disabled.
         // It's needed further down the line.
-        _allEnemies = Levels.SelectMany(Level => Level.Enemies)
+        _allEnemies = Levels.SelectMany(Level => Level.Enemies.Concat(Level.OutsideEnemies))
             .GroupBy(Enemy => Enemy.enemyType.enemyName)
             .Select(Group => Group.First())
             .ToList();
 
         if (!EnemyAdjustments.SpawnOnAllMoons.Value) return;
         foreach (var level in Levels) {
+            // Clear old enemy lists
             level.Enemies.Clear();
-            level.Enemies.AddRange(_allEnemies);
+            level.OutsideEnemies.Clear();
+            // Add all inside enemies to the level
+            level.Enemies.AddRange(_allEnemies.Where(Enemy => !Enemy.enemyType.isOutsideEnemy));
+            // Add all outside enemies to the
+            level.OutsideEnemies.AddRange(_allEnemies.Where(Enemy => Enemy.enemyType.isOutsideEnemy));
         }
     }
 
