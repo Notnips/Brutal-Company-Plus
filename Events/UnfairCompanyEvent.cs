@@ -24,7 +24,7 @@ public class UnfairCompanyEvent : IEvent {
                     new Keyframe(0.5f, 500f)
                 );
             },
-            nameof(SelectableLevel.enemySpawnChanceThroughoutDay),
+            nameof(SelectableLevel.outsideEnemySpawnChanceThroughDay),
             nameof(SelectableLevel.enemySpawnChanceThroughoutDay)
         );
     }
