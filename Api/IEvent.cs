@@ -45,7 +45,9 @@ public interface IEvent {
     public void UpdateServer() { }
 
     /// <summary>
-    /// Called when the event is over.
+    /// Called when the event is over, on both the server and the client.
+    /// You may differenciate between the two by checking:
+    /// <code>if (RoundManager.Instance.IsHost) { ... }</code>
     /// </summary>
     /// <param name="Level">the current level</param>
     public void OnEnd([UsedImplicitly] SelectableLevel Level) { }
