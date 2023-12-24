@@ -15,6 +15,7 @@ public class SurfaceExplosionEvent : IEvent {
     private static readonly Vector3 MineDistance = new(9.33f, 5.2f, 1021f);
 
     // speed at which mines spawn
+    private const int StartSpawnInterval = 10; // in seconds
     private const int MinSpawnInterval = 1; // in seconds
     private const int MaxSpawnInterval = 4; // in seconds
 
@@ -27,6 +28,7 @@ public class SurfaceExplosionEvent : IEvent {
     public EventRarity DefaultRarity => EventRarity.Uncommon;
 
     public void ExecuteServer(SelectableLevel Level) {
+        _spawnTimer = StartSpawnInterval;
         _prefab ??= Level.FindObjectPrefab<Landmine>();
     }
 
