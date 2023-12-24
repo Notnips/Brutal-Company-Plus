@@ -41,10 +41,14 @@ public class HungerGamesEvent : IEvent {
         if (!_currentTarget.isInsideFactory) return;
 
         // Kill them.
+        _playerKilled = true;
         _currentTarget.DamagePlayerFromOtherClientServerRpc(
             _currentTarget.health, new Vector3(),
             (int)_currentTarget.playerClientId);
-        _playerKilled = true;
+
+        // Notify the players that the target has been killed.
+        ChatUtils.Send($"<color=purple>{_currentTarget.playerUsername}</color> " +
+                       $"<color=orange>volunteered as Tribute!</color>");
     }
 
     public void OnEnd(SelectableLevel Level) {
