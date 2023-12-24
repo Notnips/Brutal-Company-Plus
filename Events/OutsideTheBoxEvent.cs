@@ -57,7 +57,6 @@ public class OutsideTheBoxEvent : IEvent {
             break;
         }
 
-        Plugin.Logger.LogWarning("8");
         if (!ok)
             Diagnostics.AddError(
                 $"Failed to patch JesterAI.Update()! (" +
