@@ -46,20 +46,22 @@ public class OutsideTheBoxEvent : IEvent {
         var il = instructions.ToList();
         for (var i = 1; i < il.Count; i++) { // Skip the first instruction to account for i - 1
             // Find the first instance of "if (... && StartOfRound.Instance.allPlayerScripts[i].isInsideFactory)"
-            if (!il[i - 1].LoadsField(insideField) || il[i].opcode != OpCodes.Brfalse_S) continue;
+            if (!il[i - 1].LoadsField(insideField) || il[i].opcode != OpCodes.Brfalse) continue;
             // Insert a new instruction to load the instance of this class onto the stack
             il[i - 1] = new CodeInstruction(OpCodes.Ldarg_0);
             // Insert a new instruction to call our hook method
             il.Insert(i, new CodeInstruction(OpCodes.Call, hookMethod));
             // We only need to do this once, so we're done here.
-            ok = true; break;
+            ok = true;
+            break;
         }
 
-        if (!ok) Diagnostics.AddError(
-            $"Failed to patch JesterAI.Update()! (" +
-            $"event: {nameof(OutsideTheBoxEvent)}, " +
-            $"pv: {PluginInfo.PLUGIN_VERSION}, " +
-            $"gv: {GameNetworkManager.Instance.gameVersionNum})");
+        Plugin.Logger.LogWarning("8");
+        if (!ok)
+            Diagnostics.AddError(
+                $"Failed to patch JesterAI.Update()! (" +
+                $"event: {nameof(OutsideTheBoxEvent)}, " +
+                $"ver: {PluginInfo.PLUGIN_VERSION})");
         return il.AsEnumerable();
     }
 }

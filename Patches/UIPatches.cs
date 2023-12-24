@@ -15,7 +15,7 @@ internal static class UIPatches {
         // Show the error to the user
         __instance.DisplayMenuNotification(
             $"[{PluginInfo.PLUGIN_NAME}]\n" +
-            $"One or more errors occurred during config validation:\n" +
+            $"One or more errors occurred during startup:\n" +
             $"{Diagnostics.CollectErrors()}\n\n",
             buttonText: "[ Quit ]"
         );
