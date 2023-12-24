@@ -22,6 +22,15 @@ public static class BcpUtils {
         }
     }
 
+    public static GameObject FindObjectPrefab<T>(this SelectableLevel Level) where T : MonoBehaviour {
+        foreach (var mapObject in Level.spawnableMapObjects) {
+            if (!mapObject.IsObjectTypeOf<T>(out _)) continue;
+            return mapObject.prefabToSpawn;
+        }
+
+        throw new Exception($"Unable to find prefab of type {typeof(T).Name} in level {Level.name}.");
+    }
+
     public static bool IsObjectTypeOf<T>(this SpawnableMapObject MapObject, out T Component) {
         Component = MapObject.prefabToSpawn.GetComponentInChildren<T>();
         return Component != null;

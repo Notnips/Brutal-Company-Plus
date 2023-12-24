@@ -1,5 +1,6 @@
 ﻿// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
+using System;
 using System.Linq;
 using BrutalCompanyPlus.Api;
 using Unity.Netcode;
@@ -14,6 +15,12 @@ public class BCNetworkManager : NetworkBehaviour {
     private void Awake() {
         Instance = this;
         Log($"{nameof(BCNetworkManager)} initialized!");
+    }
+
+    private void Update() {
+        if (!IsServer || !IsHost) return; // only host should execute this
+        if (EventManager.CurrentEvent == null) return; // no event is active
+        EventManager.CurrentEvent.UpdateServer();
     }
 
     [ClientRpc]

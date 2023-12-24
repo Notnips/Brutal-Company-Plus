@@ -40,6 +40,11 @@ public interface IEvent {
     public void ExecuteClient([UsedImplicitly] SelectableLevel Level);
 
     /// <summary>
+    /// Runs every tick on the server while the event is active.
+    /// </summary>
+    public void UpdateServer() { }
+
+    /// <summary>
     /// Called when the event is over.
     /// </summary>
     /// <param name="Level">the current level</param>
