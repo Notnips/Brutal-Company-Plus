@@ -45,17 +45,34 @@ public static class EventManager {
             return EventRegistry.GetEvent<NoneEvent>();
         }
 
-        var chance = UnityEngine.Random.Range(0, /* exclusive */ 101);
-        // Roll a dice to see if an event should happen at all.
-        return chance > EventSettings.GlobalChance.Value
-            // Random chance exceeded configured chance, so no event.
-            ? EventRegistry.GetEvent<NoneEvent>()
-            // If all events are equally likely to happen;
-            : EventSettings.EqualChance.Value
-                // just return a random event.
-                ? EventRegistry.GetRandomEventWithoutRarity()
-                // Otherwise, return a random event based on their rarity.
-                : EventRegistry.GetRandomEvent();
+        const int maxAttempts = 20;
+        var attempts = 0;
+        while (true) {
+            var chance = UnityEngine.Random.Range(0, /* exclusive */ 101);
+            // Roll a dice to see if an event should happen at all.
+            var @event = chance > EventSettings.GlobalChance.Value
+                // Random chance exceeded configured chance, so no event.
+                ? EventRegistry.GetEvent<NoneEvent>()
+                // If all events are equally likely to happen;
+                : EventSettings.EqualChance.Value
+                    // just return a random event.
+                    ? EventRegistry.GetRandomEventWithoutRarity()
+                    // Otherwise, return a random event based on their rarity.
+                    : EventRegistry.GetRandomEvent();
+
+            // If the event can run on the current level, return it.
+            if (@event.CanRun(Level)) return @event;
+            // Otherwise, try again up to the maximum amount of attempts.
+            if (++attempts > maxAttempts) {
+                Plugin.Logger.LogWarning(
+                    $"Failed to select an event ({attempts} > {maxAttempts}), forcing no event...");
+                return EventRegistry.GetEvent<NoneEvent>();
+            }
+
+            // Log the failed attempt.
+            Plugin.Logger.LogWarning(
+                $"Event {@event.Name} cannot be ran, rerolling... (attempt {attempts} / {maxAttempts})");
+        }
     }
 
     private static void NotifyEventStarted(IEvent Event) {

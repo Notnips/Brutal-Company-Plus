@@ -28,6 +28,15 @@ public interface IEvent {
     public EventRarity DefaultRarity { get; }
 
     /// <summary>
+    /// Whether this event can run on the current level.
+    /// <para><b>You are not allowed to modify the level at this point,
+    /// because it will not be reverted if the event is not chosen.</b></para>
+    /// </summary>
+    /// <param name="Level">the current level</param>
+    /// <returns></returns>
+    public bool CanRun([UsedImplicitly] SelectableLevel Level) => true;
+
+    /// <summary>
     /// Execute the event on the server.
     /// </summary>
     /// <param name="Level">the current level</param>
