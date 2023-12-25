@@ -116,3 +116,12 @@ public enum EventRarity {
     /// </summary>
     UltraRare = 20
 }
+
+public static class EventExtensions {
+    /// <summary>
+    /// Logs a message to the console on the INFO level with the event name prefixed.
+    /// </summary>
+    /// <param name="Event">the event</param>
+    /// <param name="Message">the log message</param>
+    public static void Log(this IEvent Event, string Message) => Plugin.Logger.LogInfo($"[Event ({Event.Name})] {Message}");
+}
