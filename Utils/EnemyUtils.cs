@@ -17,7 +17,7 @@ internal static class EnemyUtils {
         // Retrieve the enemy AI component.
         var enemyAi = enemyObj.GetComponent<EnemyAI>();
         // We might be forcing an outside enemy to spawn inside, so ensure this is set to false.
-        enemyAi.enemyType.isOutsideEnemy = false;
+        enemyAi.enemyType = SetOutsideEnemy(enemyAi.enemyType, false);
         BCNetworkManager.Instance.SyncEnemyTypeClientRpc(enemyAi, false);
         // Add the enemy to the list of spawned enemies.
         Instance.SpawnedEnemies.Add(enemyAi);
@@ -32,9 +32,15 @@ internal static class EnemyUtils {
         // Retrieve the enemy AI component.
         var enemyAi = enemyObj.GetComponent<EnemyAI>();
         // We might be forcing an inside enemy to spawn outside, so ensure this is set to true.
-        enemyAi.enemyType.isOutsideEnemy = true;
+        enemyAi.enemyType = SetOutsideEnemy(enemyAi.enemyType, true);
         BCNetworkManager.Instance.SyncEnemyTypeClientRpc(enemyAi, true);
         // Add the enemy to the list of spawned enemies.
         Instance.SpawnedEnemies.Add(enemyAi);
+    }
+
+    internal static EnemyType SetOutsideEnemy(EnemyType OriginalType, bool IsOutside) {
+        var enemyType = Object.Instantiate(OriginalType);
+        enemyType.isOutsideEnemy = IsOutside;
+        return enemyType;
     }
 }
