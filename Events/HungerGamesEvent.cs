@@ -1,4 +1,5 @@
-﻿using BrutalCompanyPlus.Api;
+﻿using System.Linq;
+using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Utils;
 using GameNetcodeStuff;
 using JetBrains.Annotations;
@@ -15,15 +16,11 @@ public class HungerGamesEvent : IEvent {
     public string Description => "May the odds be ever in your favor.";
     public EventPositivity Positivity => EventPositivity.Negative;
     public EventRarity DefaultRarity => EventRarity.Rare;
+    public bool CanRun(SelectableLevel Level) => StartOfRound.Instance.connectedPlayersAmount > 0; // 0 is the host.
 
     public void ExecuteServer(SelectableLevel Level) {
-        // If there's more than one player;
-        if (StartOfRound.Instance.allPlayerScripts.Length > 1)
-            // pick a random player to be the target.
-            _currentTarget = StartOfRound.Instance.allPlayerScripts.Random();
-        else
-            // Otherwise, this event does nothing, because it would just kill the only player.
-            _playerKilled = true;
+        // Pick a random player to be the target.
+        PickNewTarget();
     }
 
     public void ExecuteClient(SelectableLevel Level) { }
@@ -32,10 +29,9 @@ public class HungerGamesEvent : IEvent {
         // If we've already killed a player, don't do anything.
         if (_playerKilled || _currentTarget == null) return;
 
-        // If our current target died before we could kill them, pick a new target.
-        if (_currentTarget.isPlayerDead && !StartOfRound.Instance.allPlayersDead) {
-            _currentTarget = StartOfRound.Instance.allPlayerScripts.Random();
-        }
+        // If our current target died before we could kill them;
+        if (_currentTarget.isPlayerDead && !StartOfRound.Instance.allPlayersDead)
+            PickNewTarget(); // pick a new target.
 
         // If our current target has just entered the factory;
         if (!_currentTarget.isInsideFactory) return;
@@ -54,5 +50,12 @@ public class HungerGamesEvent : IEvent {
     public void OnEnd(SelectableLevel Level) {
         _currentTarget = null;
         _playerKilled = false;
+    }
+
+    private void PickNewTarget() {
+        // Pick a player that is controller and alive.
+        _currentTarget = StartOfRound.Instance.allPlayerScripts
+            .Where(Player => Player.isPlayerControlled && !Player.isPlayerDead).Random();
+        this.Log($"New target chosen: {_currentTarget.playerUsername}");
     }
 }
