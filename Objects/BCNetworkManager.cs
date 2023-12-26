@@ -45,17 +45,16 @@ public class BCNetworkManager : NetworkBehaviour {
         enemy.enemyType = EnemyUtils.SetOutsideEnemy(enemy.enemyType, IsOutside);
 
         // We can figure out if Start has already been called by checking if path1 is initialized.
-        // If it is, we need to call EnableEnemyMesh to ensure the enemy is visible.
-        if (enemy.path1 != null && IsOutside && GameNetworkManager.Instance.localPlayerController != null) {
-            Plugin.Logger.LogWarning($"Received SyncEnemyType RPC for {enemy.name} too late, catching up...");
+        if (enemy.path1 == null) return; // Start hasn't been called yet, so we can just set the flag and be done.
+
+        // If it is, we need to rerun a part of Start to make sure the enemy is properly initialized.
+        Plugin.Logger.LogWarning($"Received SyncEnemyType RPC for {enemy.name} too late, catching up...");
+        enemy.isOutside = IsOutside;
+        enemy.allAINodes = GameObject.FindGameObjectsWithTag(IsOutside ? "OutsideAINode" : "AINode");
+        if (GameNetworkManager.Instance.localPlayerController != null) {
             enemy.EnableEnemyMesh(!StartOfRound.Instance.hangarDoorsClosed ||
                                   !GameNetworkManager.Instance.localPlayerController.isInHangarShipRoom);
         }
-
-        // We might be too late at this point (as mentioned above),
-        // so set isOutside and allAINodes as well, just in case.
-        enemy.isOutside = IsOutside;
-        enemy.allAINodes = GameObject.FindGameObjectsWithTag(IsOutside ? "OutsideAINode" : "AINode");
     }
 
     [ClientRpc]
