@@ -29,6 +29,12 @@ internal static class LevelManager {
     public static List<EnemyType> AllOutsideEnemies => _allEnemies.Where(Enemy => Enemy.enemyType.isOutsideEnemy)
         .Select(Enemy => Enemy.enemyType).ToList();
 
+    /// <summary>
+    /// Returns an immutable list of all daytime enemies in the game.
+    /// </summary>
+    public static List<EnemyType> AllDaytimeEnemies => _allEnemies.Where(Enemy => Enemy.enemyType.isDaytimeEnemy)
+        .Select(Enemy => Enemy.enemyType).ToList();
+
 
     /// <summary>
     /// Tries to get the <see cref="EnemyType"/> of the specified <see cref="EnemyAI"/> type.
@@ -115,7 +121,7 @@ internal static class LevelManager {
     internal static void AddAllEnemiesToAllLevels(SelectableLevel[] Levels) {
         // NOTE: Make sure this code runs, even if SpawnOnAllMoons is disabled.
         // It's needed further down the line.
-        _allEnemies = Levels.SelectMany(Level => Level.Enemies.Concat(Level.OutsideEnemies))
+        _allEnemies = Levels.SelectMany(Level => Level.Enemies.Concat(Level.OutsideEnemies).Concat(Level.DaytimeEnemies))
             .GroupBy(Enemy => Enemy.enemyType.enemyName)
             .Select(Group => Group.First())
             .ToList();
@@ -125,10 +131,13 @@ internal static class LevelManager {
             // Clear old enemy lists
             level.Enemies.Clear();
             level.OutsideEnemies.Clear();
+            level.DaytimeEnemies.Clear();
             // Add all inside enemies to the level
             level.Enemies.AddRange(_allEnemies.Where(Enemy => !Enemy.enemyType.isOutsideEnemy));
-            // Add all outside enemies to the
+            // Add all outside enemies to the level
             level.OutsideEnemies.AddRange(_allEnemies.Where(Enemy => Enemy.enemyType.isOutsideEnemy));
+            // Add all daytime enemies to the level
+            level.DaytimeEnemies.AddRange(_allEnemies.Where(Enemy => Enemy.enemyType.isDaytimeEnemy));
         }
     }
 
