@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrutalCompanyPlus.Utils;
+using Unity.Netcode;
 using UnityEngine;
 using static BrutalCompanyPlus.Config.PluginConfig;
 
@@ -10,6 +11,24 @@ namespace BrutalCompanyPlus.Objects;
 internal static class LevelManager {
     private static List<SpawnableEnemyWithRarity> _allEnemies;
     private static readonly Dictionary<string, Action> UndoPropertyCallbacks = new();
+
+    /// <summary>
+    /// Returns an immutable list of all enemies in the game.
+    /// </summary>
+    public static List<EnemyType> AllEnemies => _allEnemies.Select(Enemy => Enemy.enemyType).ToList();
+
+    /// <summary>
+    /// Returns an immutable list of all inside enemies in the game.
+    /// </summary>
+    public static List<EnemyType> AllInsideEnemies => _allEnemies.Where(Enemy => !Enemy.enemyType.isOutsideEnemy)
+        .Select(Enemy => Enemy.enemyType).ToList();
+
+    /// <summary>
+    /// Returns an immutable list of all outside enemies in the game.
+    /// </summary>
+    public static List<EnemyType> AllOutsideEnemies => _allEnemies.Where(Enemy => Enemy.enemyType.isOutsideEnemy)
+        .Select(Enemy => Enemy.enemyType).ToList();
+
 
     /// <summary>
     /// Tries to get the <see cref="EnemyType"/> of the specified <see cref="EnemyAI"/> type.
@@ -55,6 +74,36 @@ internal static class LevelManager {
                     $"Did you call {nameof(ModifyLevelProperties)} twice on the same property?");
             }
         }
+    }
+
+    /// <summary>
+    /// Spawns a map object in the level and syncs it to all clients.
+    /// Also manages the object for you to automatically despawn it when the round ends.
+    /// <b>You do not need to call <see cref="NetworkObject.Spawn"/> on the object.</b>
+    /// </summary>
+    /// <param name="Prefab">map object prefab, see <see cref="BcpUtils.FindObjectPrefab"/></param>
+    /// <param name="Position">object position</param>
+    /// <param name="Rotation">object rotation</param>
+    public static void SpawnMapObject(GameObject Prefab, Vector3 Position, Quaternion Rotation) {
+        UnityEngine.Object.Instantiate(Prefab, Position, Rotation, RoundManager.Instance.mapPropsContainer.transform)
+            .GetComponent<NetworkObject>().Spawn(true);
+    }
+
+    /// <summary>
+    /// Spawns a map object in the level and syncs it to all clients.
+    /// Also manages the object for you to automatically despawn it when the round ends.
+    /// <b>You do not need to call <see cref="NetworkObject.Spawn"/> on the object.</b>
+    /// </summary>
+    /// <param name="Prefab">map object prefab, see <see cref="BcpUtils.FindObjectPrefab"/></param>
+    /// <param name="Position">object position</param>
+    /// <param name="Rotation">object rotation</param>
+    /// <typeparam name="T">behavior script of the map object</typeparam>
+    /// <returns>the behavior script of the map object</returns>
+    public static T SpawnMapObject<T>(GameObject Prefab, Vector3 Position, Quaternion Rotation) {
+        var obj = UnityEngine.Object.Instantiate(Prefab, Position, Rotation,
+            RoundManager.Instance.mapPropsContainer.transform);
+        obj.GetComponent<NetworkObject>().Spawn(true);
+        return obj.GetComponentInChildren<T>();
     }
 
     internal static void UndoLevelPropertyChanges() {
