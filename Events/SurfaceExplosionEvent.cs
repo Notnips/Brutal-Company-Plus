@@ -1,10 +1,10 @@
 ﻿// ReSharper disable InconsistentNaming
 
 using BrutalCompanyPlus.Api;
+using BrutalCompanyPlus.Objects;
 using BrutalCompanyPlus.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace BrutalCompanyPlus.Events;
@@ -36,24 +36,29 @@ public class SurfaceExplosionEvent : IEvent {
 
     public void UpdateServer() {
         if (StartOfRound.Instance.allPlayersDead) return;
-        if (_spawnTimer >= 0.0) {
+        if (_spawnTimer >= 0f) {
             _spawnTimer -= Time.deltaTime;
             return;
         }
 
         _spawnTimer = Random.Range(MinSpawnInterval, MaxSpawnInterval);
-        var player = StartOfRound.Instance.allPlayerScripts.Random();
-        if (player.isInHangarShipRoom || player.isInsideFactory) return;
-        if (Vector3.Distance(player.transform.position, MineDistance) < 1f) {
-            _spawnTimer = MinSpawnInterval;
+        if (!PlayerUtils.OutsidePlayers.Random(out var player)) return;
+        var playerPos = player.transform.position;
+        if (Vector3.Distance(playerPos, MineDistance) < 1f) {
+            _spawnTimer = -1f;
             return;
         }
 
-        var mine = Object.Instantiate(_prefab, player.transform.position, Quaternion.identity);
-        mine.GetComponent<NetworkObject>().Spawn(true);
+        // We trigger the mine immediately to prevent a client-advantage where the mine
+        // does not trigger because the client has already moved too far away from the mine.
+        LevelManager.SpawnMapObject<Landmine>(_prefab, playerPos, Quaternion.identity)
+            .TriggerMineOnLocalClientByExiting(); // trigger the mine immediately
     }
 
-    public void OnEnd(SelectableLevel Level) {
-        _spawnTimer = 0f;
+    [HarmonyPrefix, HarmonyPatch(typeof(Landmine), "Start")]
+    private static bool StartPatch(ref Landmine __instance) {
+        // If the mine was already triggered (possibly by the function above),
+        // we don't want the animation to reset back to the idle state.
+        return !__instance.hasExploded;
     }
 }
