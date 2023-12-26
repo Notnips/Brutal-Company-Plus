@@ -17,6 +17,15 @@ public static class EnemySpawnManager {
         PendingSpawns.Add((type, Info));
     }
 
+    /// <summary>
+    /// Drafts the specified amount of enemies to spawn when the level starts.
+    /// </summary>
+    /// <param name="Type">type of the enemy</param>
+    /// <param name="Info">spawn info</param>
+    public static void DraftEnemySpawn(EnemyType Type, SpawnInfo Info) {
+        PendingSpawns.Add((Type, Info));
+    }
+
     public readonly struct SpawnInfo {
         /// <summary>
         /// Amount of enemies to spawn.
