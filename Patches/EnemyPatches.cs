@@ -34,7 +34,7 @@ internal static class EnemyPatches {
         if (!StartOfRound.Instance.allPlayerScripts.Any(player => player.isInsideFactory)) return;
         foreach (var (enemyType, info) in EnemySpawnManager.PendingSpawns.TakeIf(si => !si.SpawnInfo.Immediate)) {
             Plugin.Logger.LogInfo(
-                $"{Tag} Spawning {info.Amount} {enemyType.enemyName} (outside: {{info.Outside}}) enemies... (delayed)");
+                $"{Tag} Spawning {info.Amount} {enemyType.enemyName} (outside: {info.Outside}) enemies... (delayed)");
             for (var i = 0; i < info.Amount; i++) {
                 // If the enemy is an outside enemy, spawn it outside.
                 if (info.Outside) EnemyUtils.SpawnOutsideEnemy(__instance, enemyType.enemyPrefab);
