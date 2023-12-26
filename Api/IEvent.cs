@@ -37,13 +37,13 @@ public interface IEvent {
     public bool CanRun([UsedImplicitly] SelectableLevel Level) => true;
 
     /// <summary>
-    /// Execute the event on the server.
+    /// Execute the event on the host (IsHost == true).
     /// </summary>
     /// <param name="Level">the current level</param>
     public void ExecuteServer([UsedImplicitly] SelectableLevel Level);
 
     /// <summary>
-    /// Execute the event on the client.
+    /// Execute the event on the client (IsHost == false).
     /// </summary>
     /// <param name="Level">the current level</param>
     public void ExecuteClient([UsedImplicitly] SelectableLevel Level);
