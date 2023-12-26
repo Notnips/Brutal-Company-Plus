@@ -15,28 +15,28 @@ public static class PluginConfig {
         [Configuration("Experimentation", "6,25,400,1500")]
         public static ConfigEntry<string> ExperimentationLevel { get; set; }
 
-        [Configuration("Assurance", "6,25,400,1500")]
+        [Configuration("Assurance", "10,25,600,2500")]
         public static ConfigEntry<string> AssuranceLevel { get; set; }
 
-        [Configuration("Vow", "6,25,400,1500")]
+        [Configuration("Vow", "12,35,600,2500")]
         public static ConfigEntry<string> VowLevel { get; set; }
 
-        [Configuration("Offense", "6,25,400,1500")]
+        [Configuration("Offense", "15,35,800,3500")]
         public static ConfigEntry<string> OffenseLevel { get; set; }
 
-        [Configuration("March", "6,25,400,1500")]
+        [Configuration("March", "15,35,800,3500")]
         public static ConfigEntry<string> MarchLevel { get; set; }
 
-        [Configuration("Rend", "6,25,400,1500")]
+        [Configuration("Rend", "20,60,1500,5000")]
         public static ConfigEntry<string> RendLevel { get; set; }
 
-        [Configuration("Dine", "6,25,400,1500")]
+        [Configuration("Dine", "20,60,1500,5000")]
         public static ConfigEntry<string> DineLevel { get; set; }
 
-        [Configuration("Titan", "6,25,400,1500")]
+        [Configuration("Titan", "20,60,2000,6000")]
         public static ConfigEntry<string> TitanLevel { get; set; }
 
-        [Configuration("any custom levels", "6,25,400,1500")]
+        [Configuration("any custom levels", "20,60,2000,6000")]
         public static ConfigEntry<string> CustomLevel { get; set; }
     }
 
