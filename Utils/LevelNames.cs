@@ -11,7 +11,7 @@ public static class LevelNames {
     public const string Rend = "RendLevel";
     public const string Dine = "DineLevel";
     public const string Titan = "TitanLevel";
-    public const string Custom = "???_custom_???";
+    internal const string Custom = "???_custom_???";
 
     private static readonly string[] All = {
         Experimentation,
