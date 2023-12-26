@@ -60,7 +60,7 @@ internal static class LevelManager {
         // Store the original values of the properties we're about to change.
         var originalValues = new Dictionary<string, object>();
         foreach (var dependency in Dependencies) {
-            var property = Level.GetType().GetProperty(dependency);
+            var property = Level.GetType().GetField(dependency);
             if (!originalValues.TryAdd(dependency, property!.GetValue(Level)))
                 throw new Exception($"Property '{dependency}' mentioned twice in dependencies array!");
         }
@@ -70,7 +70,7 @@ internal static class LevelManager {
 
         // Add a callback to undo the changes when the event ends.
         foreach (var dependency in Dependencies) {
-            var property = Level.GetType().GetProperty(dependency);
+            var property = Level.GetType().GetField(dependency);
             var originalValue = originalValues[dependency];
             var newValue = property!.GetValue(Level);
             if (originalValue.Equals(newValue)) continue;
