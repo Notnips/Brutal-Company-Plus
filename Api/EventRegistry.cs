@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Api;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 public static class EventRegistry {
     private static readonly List<IEvent> RegisteredEvents = new();
     internal static readonly Dictionary<IEvent, EventRarity> EventRarityValues = new();
@@ -68,5 +69,10 @@ public static class EventRegistry {
     /// Returns a random event without taking their rarity into account.
     /// </summary>
     /// <returns>a random event</returns>
-    internal static IEvent GetRandomEventWithoutRarity() => RegisteredEvents.Random();
+    internal static IEvent GetRandomEventWithoutRarity() {
+        if (RegisteredEvents.Where(Event => Event.GetRarity() != EventRarity.Disabled).Random(out var @event))
+            return @event;
+        Plugin.Logger.LogFatal("Failed to get random event! (without rarity)");
+        return GetEvent<NoneEvent>();
+    }
 }
