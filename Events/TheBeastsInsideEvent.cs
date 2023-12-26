@@ -13,7 +13,7 @@ public class TheBeastsInsideEvent : IEvent {
     public EventRarity DefaultRarity => EventRarity.Uncommon;
 
     public void ExecuteServer(SelectableLevel Level) {
-        var amount = Level.name switch {
+        EnemySpawnManager.DraftEnemySpawn<MouthDogAI>(new EnemySpawnManager.SpawnInfo(Level.name switch {
             LevelNames.Experimentation => 2,
             LevelNames.Assurance => 2,
             LevelNames.Vow => 2,
@@ -23,8 +23,7 @@ public class TheBeastsInsideEvent : IEvent {
             LevelNames.Dine => 4,
             LevelNames.Titan => 6,
             _ => 4 // custom level
-        };
-        EnemySpawnManager.DraftEnemySpawn<MouthDogAI>(new EnemySpawnManager.SpawnInfo(amount));
+        }));
     }
 
     public void ExecuteClient(SelectableLevel Level) { }

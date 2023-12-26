@@ -20,7 +20,7 @@ public class TheRumblingEvent : IEvent {
     public EventRarity DefaultRarity => EventRarity.Uncommon;
 
     public void ExecuteServer(SelectableLevel Level) {
-        var amount = Level.name switch {
+        EnemySpawnManager.DraftEnemySpawn<ForestGiantAI>(new EnemySpawnManager.SpawnInfo(Level.name switch {
             LevelNames.Experimentation => 6,
             LevelNames.Assurance => 8,
             LevelNames.Vow => 8,
@@ -30,8 +30,7 @@ public class TheRumblingEvent : IEvent {
             LevelNames.Dine => 10,
             LevelNames.Titan => 8,
             _ => 8 // custom level
-        };
-        EnemySpawnManager.DraftEnemySpawn<ForestGiantAI>(new EnemySpawnManager.SpawnInfo(amount, Outside: true));
+        }, Outside: true));
     }
 
     public void ExecuteClient(SelectableLevel Level) { }
