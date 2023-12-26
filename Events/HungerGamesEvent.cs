@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using BrutalCompanyPlus.Api;
+﻿using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Utils;
 using GameNetcodeStuff;
 using JetBrains.Annotations;
@@ -53,9 +52,8 @@ public class HungerGamesEvent : IEvent {
     }
 
     private void PickNewTarget() {
-        // Pick a player that is controller and alive.
-        _currentTarget = StartOfRound.Instance.allPlayerScripts
-            .Where(Player => Player.isPlayerControlled && !Player.isPlayerDead).Random();
+        // Pick a random player to be the target.
+        if (!PlayerUtils.AlivePlayers.Random(out _currentTarget)) return;
         this.Log($"New target chosen: {_currentTarget.playerUsername}");
     }
 }

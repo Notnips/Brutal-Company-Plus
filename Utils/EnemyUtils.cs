@@ -7,7 +7,7 @@ namespace BrutalCompanyPlus.Utils;
 internal static class EnemyUtils {
     internal static void SpawnInsideEnemy(RoundManager Instance, GameObject EnemyPrefab) {
         // Pick a random vent to spawn from.
-        var vent = Instance.allEnemyVents.Random();
+        if (!Instance.allEnemyVents.Random(out var vent)) return;
         // Retrieve the spawn position from the vent.
         var spawnPosition = vent.floorNode.position;
         var spawnRotation = Quaternion.Euler(0, vent.floorNode.eulerAngles.y, 0);
@@ -25,7 +25,7 @@ internal static class EnemyUtils {
 
     internal static void SpawnOutsideEnemy(RoundManager Instance, GameObject EnemyPrefab) {
         // Pick a random node to spawn from.
-        var node = GameObject.FindGameObjectsWithTag("OutsideAINode").Random();
+        if (!GameObject.FindGameObjectsWithTag("OutsideAINode").Random(out var node)) return;
         // Spawn the enemy.
         var enemyObj = Object.Instantiate(EnemyPrefab, node.transform.position, Quaternion.identity);
         enemyObj.GetComponentInChildren<NetworkObject>().Spawn(true);

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using BepInEx.Configuration;
 using BrutalCompanyPlus.Utils;
-using JetBrains.Annotations;
 
 namespace BrutalCompanyPlus.Config;
 

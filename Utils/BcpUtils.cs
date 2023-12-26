@@ -53,9 +53,28 @@ public static class BcpUtils {
         return items;
     }
 
-    public static T Random<T>(this List<T> List) => List[UnityEngine.Random.Range(0, List.Count)];
-    public static T Random<T>(this T[] Array) => Array[UnityEngine.Random.Range(0, Array.Length)];
-    public static T Random<T>(this IEnumerable<T> Enumerable) => Enumerable.ToList().Random();
+    public static bool Random<T>(this List<T> List, out T Value) {
+        if (List.IsEmpty()) {
+            Value = default;
+            return false;
+        }
+
+        Value = List[UnityEngine.Random.Range(0, List.Count)];
+        return true;
+    }
+
+    public static bool Random<T>(this T[] Array, out T Value) {
+        if (Array.IsEmpty()) {
+            Value = default;
+            return false;
+        }
+
+        Value = Array[UnityEngine.Random.Range(0, Array.Length)];
+        return true;
+    }
+
+    public static bool Random<T>(this IEnumerable<T> Enumerable, out T Value) =>
+        Enumerable.ToList().Random(out Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // force inline
     public static void ForEach<T, TResult>(this IEnumerable<T> Collection, Func<T, TResult> Action) {
