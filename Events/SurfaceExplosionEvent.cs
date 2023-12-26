@@ -1,16 +1,12 @@
-﻿// ReSharper disable InconsistentNaming
-
-using BrutalCompanyPlus.Api;
+﻿using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Objects;
 using BrutalCompanyPlus.Utils;
-using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BrutalCompanyPlus.Events;
 
 [UsedImplicitly]
-[HarmonyPatch]
 public class SurfaceExplosionEvent : IEvent {
     private static readonly Vector3 MineDistance = new(9.33f, 5.2f, 1021f);
 
@@ -53,12 +49,5 @@ public class SurfaceExplosionEvent : IEvent {
         // does not trigger because the client has already moved too far away from the mine.
         LevelManager.SpawnMapObject<Landmine>(_prefab, playerPos, Quaternion.identity)
             .TriggerMineOnLocalClientByExiting(); // trigger the mine immediately
-    }
-
-    [HarmonyPrefix, HarmonyPatch(typeof(Landmine), "Start")]
-    private static bool StartPatch(ref Landmine __instance) {
-        // If the mine was already triggered (possibly by the function above),
-        // we don't want the animation to reset back to the idle state.
-        return !__instance.hasExploded;
     }
 }
