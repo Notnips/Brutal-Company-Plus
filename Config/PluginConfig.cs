@@ -69,7 +69,7 @@ public static class PluginConfig {
     public static class EnemyRarityValues {
         // Adjust this accordingly every time a new enemy is added. Would be nice if this could be automated.
         private const string DefaultRarity =
-            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1";
+            "Centipede:-1,Bunker Spider:-1,Hoarding bug:-1,Flowerman:-1,Crawler:-1,Blob:-1,Girl:-1,Puffer:-1,Nutcracker:-1,Spring:-1,Jester:-1,Masked:-1,Lasso:-1";
 
         [Configuration("Set this to `false` if you want vanilla spawning behavior.", true, true)]
         public static ConfigEntry<bool> Enabled { get; set; }
