@@ -22,6 +22,11 @@ public static class BcpUtils {
         }
     }
 
+    public static void AddCredits(this Terminal Terminal, int Amount) {
+        Terminal.groupCredits += Amount;
+        Terminal.SyncGroupCreditsServerRpc(Terminal.groupCredits, Terminal.numberOfItemsInDropship);
+    }
+
     public static Vector3 GetNearbyLocation(Vector3 Location) {
         const float offsetDistance = 10.0f;
         var offset = UnityEngine.Random.insideUnitSphere * offsetDistance;

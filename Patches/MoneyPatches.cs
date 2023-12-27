@@ -7,7 +7,7 @@ using static BrutalCompanyPlus.Config.PluginConfig;
 namespace BrutalCompanyPlus.Patches;
 
 [HarmonyPatch]
-internal static class QuotaPatches {
+internal static class MoneyPatches {
     [HarmonyPostfix, HarmonyPatch(typeof(TimeOfDay), "Awake")]
     private static void AdjustQuotaValues(ref TimeOfDay __instance) {
         Plugin.Logger.LogWarning("Adjusting starting quota values...");
@@ -29,9 +29,9 @@ internal static class QuotaPatches {
             __instance.quotaVariables.baseIncrease = v;
     }
 
-    [HarmonyPostfix, HarmonyPatch(typeof(RoundManager), "DespawnPropsAtEndOfRound")]
-    private static void HandleLevelEventEndPatch(ref RoundManager __instance) {
-        if (!__instance.IsHost) return;
+    [HarmonyPrefix, HarmonyPatch(typeof(RoundManager), "DetectElevatorIsRunning")]
+    private static void CompensatePlayersPatch(ref RoundManager __instance) {
+        if (!__instance.IsServer) return;
 
         // All players are dead, don't compensate
         if (StartOfRound.Instance.allPlayersDead) {
@@ -40,10 +40,9 @@ internal static class QuotaPatches {
         }
 
         // All players are alive, compensate accordingly
-        ChatUtils.Send("<size=10><color=green>You survived another day! Here's your compensation :)</color></size>",
-            Clear: true);
-        var terminal = Singleton.Terminal;
-        terminal.groupCredits += CreditsAdjustments.FreeMoneyAmount.Value;
-        terminal.SyncGroupCreditsServerRpc(terminal.groupCredits, terminal.numberOfItemsInDropship);
+        var amount = CreditsAdjustments.FreeMoneyAmount.Value;
+        Singleton.Terminal.AddCredits(amount);
+        ChatUtils.Send($"<size=10><color=green>You survived another day! Here's your compensation :)\n" +
+                       $"<color=orange>+{amount} credits</color></size>", true);
     }
 }

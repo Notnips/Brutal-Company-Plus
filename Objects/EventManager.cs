@@ -1,5 +1,6 @@
 ﻿using BrutalCompanyPlus.Api;
 using BrutalCompanyPlus.Events;
+using BrutalCompanyPlus.Utils;
 using static BrutalCompanyPlus.Config.PluginConfig;
 
 namespace BrutalCompanyPlus.Objects;
@@ -83,10 +84,11 @@ public static class EventManager {
             EventPositivity.Golden => "orange",
             _ => "white"
         };
-        HUDManager.Instance.AddTextToChatOnServer(
+        ChatUtils.Send(
             $"<color=yellow>EVENT<color=white>:</color></color>\n" +
             $"<color={positivity}>{Event.Name}</color>\n" +
-            $"<color=white><size=70%>{Event.Description}</size></color>"
+            $"<color=white><size=70%>{Event.Description}</size></color>",
+            Clear: true
         );
     }
 }

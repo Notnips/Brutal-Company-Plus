@@ -2,8 +2,8 @@
 
 public static class ChatUtils {
     public static void Send(string Message, bool Clear = false) {
-        HUDManager.Instance.AddTextToChatOnServer(Message);
         if (Clear) ChatUtils.Clear();
+        HUDManager.Instance.AddTextToChatOnServer(Message);
     }
 
     private static void Clear() => Send(
