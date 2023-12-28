@@ -1,10 +1,14 @@
-﻿using BrutalCompanyPlus.Objects;
+﻿using System.Collections.Generic;
+using BrutalCompanyPlus.Objects;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace BrutalCompanyPlus.Utils;
 
 internal static class EnemyUtils {
+    private static readonly Dictionary<string, EnemyType> InsideEnemyTypes = new();
+    private static readonly Dictionary<string, EnemyType> OutsideEnemyTypes = new();
+
     internal static void SpawnInsideEnemy(RoundManager Instance, GameObject EnemyPrefab) {
         // Pick a random vent to spawn from.
         if (!Instance.allEnemyVents.Random(out var vent)) return;
@@ -45,8 +49,19 @@ internal static class EnemyUtils {
     }
 
     internal static EnemyType SetOutsideEnemy(EnemyType OriginalType, bool IsOutside) {
+        switch (IsOutside) {
+            case true when OutsideEnemyTypes.TryGetValue(OriginalType.enemyName, out var outsideEnemy):
+                return outsideEnemy;
+            case false when InsideEnemyTypes.TryGetValue(OriginalType.enemyName, out var insideEnemy):
+                return insideEnemy;
+        }
+
         var enemyType = Object.Instantiate(OriginalType);
         enemyType.isOutsideEnemy = IsOutside;
+
+        if (IsOutside) OutsideEnemyTypes.Add(OriginalType.enemyName, enemyType);
+        else InsideEnemyTypes.Add(OriginalType.enemyName, enemyType);
+
         return enemyType;
     }
 }
