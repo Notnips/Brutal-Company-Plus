@@ -87,8 +87,7 @@ public static class EventManager {
         ChatUtils.Send(
             $"<color=yellow>EVENT<color=white>:</color></color>\n" +
             $"<color={positivity}>{Event.Name}</color>\n" +
-            $"<color=white><size=70%>{Event.Description}</size></color>",
-            Clear: true
+            $"<color=white><size=70%>{Event.Description}</size></color>"
         );
     }
 }
