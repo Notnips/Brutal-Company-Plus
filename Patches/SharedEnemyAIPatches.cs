@@ -21,9 +21,6 @@ internal class SharedEnemyAIPatches {
     [HarmonyPostfix, HarmonyPatch(typeof(FlowermanAI), "Start")]
     private static void FlowermanOutsideFavoritePositionPatch(ref FlowermanAI __instance) {
         if (!__instance.isOutside) return;
-        // Needs a nasty hack because favoriteSpot is a Transform, not a Vector3
-        var obj = new GameObject("Flowerman Favorite Spot");
-        obj.transform.position = ShipLocation;
-        __instance.favoriteSpot = obj.transform;
+        __instance.mainEntrancePosition = ShipLocation;
     }
 }
