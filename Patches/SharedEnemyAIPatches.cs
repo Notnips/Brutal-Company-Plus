@@ -1,6 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming,RedundantAssignment,UseObjectOrCollectionInitializer
 
 using BrutalCompanyPlus.Utils;
+using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 
@@ -22,5 +23,12 @@ internal class SharedEnemyAIPatches {
     private static void FlowermanOutsideFavoritePositionPatch(ref FlowermanAI __instance) {
         if (!__instance.isOutside) return;
         __instance.mainEntrancePosition = ShipLocation;
+    }
+
+    // Blobs are not designed to take damage from anything other than the player,
+    // so we need to patch a bit of code so that it doesn't lag the game to a halt.
+    [HarmonyPrefix, HarmonyPatch(typeof(BlobAI), "HitEnemy")]
+    private static bool BlobDamageLagPatch(ref PlayerControllerB playerWhoHit) {
+        return playerWhoHit != null;
     }
 }
