@@ -12,8 +12,8 @@ public class HoarderTownEvent : IEvent {
     public EventRarity DefaultRarity => EventRarity.Rare;
 
     public void ExecuteServer(SelectableLevel Level) {
-        EnemySpawnManager.DraftEnemySpawn<HoarderBugAI>(new EnemySpawnManager.SpawnInfo(8));
-        EnemySpawnManager.DraftEnemySpawn<HoarderBugAI>(new EnemySpawnManager.SpawnInfo(8, Outside: true));
+        EnemySpawnManager.DraftEnemySpawn<HoarderBugAI>(new EnemySpawnManager.SpawnInfo(6));
+        EnemySpawnManager.DraftEnemySpawn<HoarderBugAI>(new EnemySpawnManager.SpawnInfo(3, Outside: true));
     }
 
     public void ExecuteClient(SelectableLevel Level) { }
