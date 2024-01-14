@@ -13,7 +13,8 @@ public static class LevelNames {
     public const string Titan = "TitanLevel";
     internal const string Custom = "???_custom_???";
 
-    private static readonly string[] All = {
+    // ReSharper disable once MemberCanBePrivate.Global
+    public static readonly string[] All = {
         Experimentation,
         Assurance,
         Vow,
@@ -23,6 +24,8 @@ public static class LevelNames {
         Dine,
         Titan
     };
+    
+    // Intended for config validation only. Do not use for anything else.
     internal static readonly string[] AllCustom = All.Concat(new[] { Custom }).ToArray();
 
     public static bool IsCustom(string LevelName) => !All.Contains(LevelName);
