@@ -7,7 +7,7 @@ namespace BrutalCompanyPlus.Patches;
 
 [HarmonyPatch]
 internal static class LevelPatches {
-    [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), "Start")]
+    [HarmonyPostfix, HarmonyPriority(Priority.Last), HarmonyPatch(typeof(StartOfRound), "Start")]
     private static void ModifyLevelsPatch(ref StartOfRound __instance) {
         // Make sure we're the host
         if (!__instance.IsHost) return;
