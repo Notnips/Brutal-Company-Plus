@@ -25,11 +25,11 @@ public class UnfairCompanyEvent : IEvent {
         LevelManager.ModifyLevelProperties(Level, Level => {
                 Level.outsideEnemySpawnChanceThroughDay = new AnimationCurve(
                     new Keyframe(0f, 999f),
-                    new Keyframe(21f, 999f)
+                    new Keyframe(1f, 999f)
                 );
                 Level.enemySpawnChanceThroughoutDay = new AnimationCurve(
                     new Keyframe(0f, 500f),
-                    new Keyframe(0.5f, 500f)
+                    new Keyframe(1f, 500f)
                 );
             },
             nameof(SelectableLevel.outsideEnemySpawnChanceThroughDay),
