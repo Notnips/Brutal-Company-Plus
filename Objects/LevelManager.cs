@@ -129,16 +129,10 @@ internal static class LevelManager {
 
         if (!EnemyAdjustments.SpawnOnAllMoons.Value) return;
         foreach (var level in Levels) {
-            // Clear old enemy lists
+            // Clear old enemy list
             level.Enemies.Clear();
-            level.OutsideEnemies.Clear();
-            level.DaytimeEnemies.Clear();
             // Add all inside enemies to the level
             level.Enemies.AddRange(_allEnemies.Where(Enemy => !Enemy.enemyType.isOutsideEnemy));
-            // Add all outside enemies to the level
-            level.OutsideEnemies.AddRange(_allEnemies.Where(Enemy => Enemy.enemyType.isOutsideEnemy));
-            // Add all daytime enemies to the level
-            level.DaytimeEnemies.AddRange(_allEnemies.Where(Enemy => Enemy.enemyType.isDaytimeEnemy));
         }
     }
 
