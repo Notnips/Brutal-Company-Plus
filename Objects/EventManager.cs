@@ -11,6 +11,12 @@ public static class EventManager {
     public static bool IsActive<T>() where T : IEvent => CurrentEvent is T;
 
     public static void StartEventServer(SelectableLevel Level) {
+        if (CurrentEvent != null) {
+            Plugin.Logger.LogError($"{nameof(StartEventServer)} called twice, this shouldn't happen! (do you have LE installed?)");
+            // Not notifying the player here, because this can be caused by other mods. And it's not a big deal anyway.
+            return;
+        }
+
         var @event = SelectRandomEvent(Level);
         if (@event == null) return;
         Plugin.Logger.LogWarning($"Starting event {@event.Name}... (server)");
@@ -21,6 +27,12 @@ public static class EventManager {
     }
 
     public static void EndEventServer(SelectableLevel Level) {
+        if (CurrentEvent == null) {
+            Plugin.Logger.LogError($"{nameof(EndEventServer)} called without an active event, please report this!");
+            ChatUtils.NotifyError();
+            return;
+        }
+
         Plugin.Logger.LogWarning($"Ending event {CurrentEvent.Name}... (server)");
         BCNetworkManager.Instance.EndEventClientRpc();
         CurrentEvent.OnEnd(Level);
@@ -29,12 +41,24 @@ public static class EventManager {
     }
 
     public static void StartEventClient(SelectableLevel Level, IEvent Event) {
+        if (CurrentEvent != null) {
+            Plugin.Logger.LogError($"{nameof(StartEventClient)} called twice, this shouldn't happen! (did the server start an event twice?)");
+            ChatUtils.NotifyError();
+            return;
+        }
+        
         Plugin.Logger.LogWarning($"Starting event {Event.Name}... (client)");
         Event.ExecuteClient(Level);
         CurrentEvent = Event;
     }
 
     public static void EndEventClient(SelectableLevel Level) {
+        if (CurrentEvent == null) {
+            Plugin.Logger.LogError($"{nameof(EndEventClient)} called without an active event, please report this!");
+            ChatUtils.NotifyError();
+            return;
+        }
+        
         Plugin.Logger.LogWarning($"Ending event {CurrentEvent.Name}... (client)");
         CurrentEvent.OnEnd(Level);
         CurrentEvent = null;
