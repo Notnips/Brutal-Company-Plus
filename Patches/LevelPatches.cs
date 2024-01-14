@@ -18,6 +18,8 @@ internal static class LevelPatches {
             MoonHeatManager.InitializeFor(level);
             // Apply configured enemy rarity values
             LevelManager.ApplyEnemyRarityValues(level);
+            // Apply new enemy spawn chances
+            LevelManager.ApplyEnemySpawnChances(level);
             // Apply configured enemy spawn rates
             LevelManager.ApplyEnemySpawnRates(level);
             // Apply configured level properties

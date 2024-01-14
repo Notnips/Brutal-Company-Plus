@@ -121,7 +121,8 @@ internal static class LevelManager {
     internal static void AddAllEnemiesToAllLevels(SelectableLevel[] Levels) {
         // NOTE: Make sure this code runs, even if SpawnOnAllMoons is disabled.
         // It's needed further down the line.
-        _allEnemies = Levels.SelectMany(Level => Level.Enemies.Concat(Level.OutsideEnemies).Concat(Level.DaytimeEnemies))
+        _allEnemies = Levels
+            .SelectMany(Level => Level.Enemies.Concat(Level.OutsideEnemies).Concat(Level.DaytimeEnemies))
             .GroupBy(Enemy => Enemy.enemyType.enemyName)
             .Select(Group => Group.First())
             .ToList();
@@ -165,18 +166,13 @@ internal static class LevelManager {
         }
     }
 
-    internal static void ApplyEnemySpawnRates(SelectableLevel Level) {
-        Level.enemySpawnChanceThroughoutDay = new AnimationCurve(
-            new Keyframe(0f, 0.1f),
-            new Keyframe(0.5f, 10f),
-            new Keyframe(1f, 70f)
-        );
-        Level.outsideEnemySpawnChanceThroughDay = new AnimationCurve(
-            new Keyframe(0f, -30f),
-            new Keyframe(20f, -20f),
-            new Keyframe(21f, 10f)
-        );
+    internal static void ApplyEnemySpawnChances(SelectableLevel Level) {
+        // Increases the amount of enemies that spawn by a factor of 3.
+        MultiplyCurvePoints(ref Level.enemySpawnChanceThroughoutDay, 3, PositiveOnly: true);
+        MultiplyCurvePoints(ref Level.outsideEnemySpawnChanceThroughDay, 3, PositiveOnly: true);
+    }
 
+    internal static void ApplyEnemySpawnRates(SelectableLevel Level) {
         foreach (var mapObject in Level.spawnableMapObjects) {
             if (mapObject.IsObjectTypeOf<Turret>(out _) && MapHazards.TurretSpawnRate.GetIfSet(out var rate)) {
                 mapObject.numberToSpawn = new AnimationCurve(
@@ -209,5 +205,27 @@ internal static class LevelManager {
 
     private static void ApplyIfSet(ref int Value, int NewValue) {
         if (NewValue != -1) Value = NewValue;
+    }
+
+    /// <summary>
+    /// Multiplies the values of the specified curve by the specified multiplier.
+    /// </summary>
+    /// <param name="Curve">the curve</param>
+    /// <param name="Multiplier">the multiplier</param>
+    /// <param name="PositiveOnly">whether only positive values should be modified</param>
+    private static void MultiplyCurvePoints(ref AnimationCurve Curve, int Multiplier, bool PositiveOnly = false) {
+        // As per Unity's documentation:
+        // > Note that the array is "by value", i.e. getting keys returns a copy of all keys
+        // > and setting keys copies them into the curve.
+
+        // Get the keys from the curve and multiply their values.
+        var keys = Curve.keys;
+        for (var i = 0; i < keys.Length; i++) {
+            if (PositiveOnly && keys[i].value < 0) continue;
+            keys[i].value *= Multiplier;
+        }
+
+        // Finally, set the keys back to the curve.
+        Curve.keys = keys;
     }
 }
