@@ -1,11 +1,13 @@
-﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global,InvertIf
 
+using System.Collections.Generic;
 using BepInEx.Configuration;
 using BrutalCompanyPlus.Utils;
+using HarmonyLib;
 
 namespace BrutalCompanyPlus.Config;
 
-public static class PluginConfig {
+internal static class PluginConfig {
     [ConfigCategory("Custom Scrap Values")]
     [SharedDescription(
         $"Define min/max scrap pieces and min/max total scrap value for {{}} (for vanilla, use: {DefaultValues})")]
@@ -140,7 +142,7 @@ public static class PluginConfig {
         public static ConfigEntry<bool> EqualChance { get; set; }
     }
 
-    public static void Bind(Plugin Plugin) {
+    internal static void Bind(Plugin Plugin) {
         ConfigLoader.Bind(Plugin);
         Validate();
     }
