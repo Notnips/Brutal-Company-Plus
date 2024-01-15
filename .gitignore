@@ -223,6 +223,10 @@ fabric.properties
 
 # Game assemblies
 Managed/*.dll
-Libs/*.dll
+Libraries/*.dll
 ThunderBuild/**/*.dll
 ThunderBuild/**/*.zip
+
+# UnityNetcodeWeaver
+Libraries/NetcodePatcher/*
+!Libraries/NetcodePatcher/.gitkeep
