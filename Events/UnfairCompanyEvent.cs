@@ -18,7 +18,7 @@ public class UnfairCompanyEvent : IEvent {
     public void ExecuteServer(SelectableLevel Level) {
         for (var i = 0; i < OutsideEnemyCount; i++) {
             if (!LevelManager.AllOutsideEnemies.Random(out var type)) continue;
-            EnemySpawnManager.DraftEnemySpawn(type, new EnemySpawnManager.SpawnInfo(1, Outside: true));
+            EnemySpawnManager.DraftEnemySpawn(type.enemyType, new EnemySpawnManager.SpawnInfo(1, Outside: true));
         }
 
         // ReSharper disable once VariableHidesOuterVariable

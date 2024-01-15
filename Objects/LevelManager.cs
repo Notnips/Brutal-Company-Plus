@@ -1,4 +1,6 @@
-﻿using System;
+﻿// ReSharper disable MemberCanBePrivate.Global
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrutalCompanyPlus.Utils;
@@ -9,32 +11,29 @@ using static BrutalCompanyPlus.Config.PluginConfig;
 namespace BrutalCompanyPlus.Objects;
 
 internal static class LevelManager {
-    private static List<SpawnableEnemyWithRarity> _allEnemies;
     private static readonly Dictionary<string, Action> UndoPropertyCallbacks = new();
 
     /// <summary>
     /// Returns an immutable list of all enemies in the game.
     /// </summary>
-    public static List<EnemyType> AllEnemies => _allEnemies.Select(Enemy => Enemy.enemyType).ToList();
+    public static IEnumerable<SpawnableEnemyWithRarity> AllEnemies => AllInsideEnemies
+        .Concat(AllOutsideEnemies)
+        .Concat(AllDaytimeEnemies);
 
     /// <summary>
-    /// Returns an immutable list of all inside enemies in the game.
+    /// A list of all inside enemies in the game.
     /// </summary>
-    public static List<EnemyType> AllInsideEnemies => _allEnemies.Where(Enemy => !Enemy.enemyType.isOutsideEnemy)
-        .Select(Enemy => Enemy.enemyType).ToList();
+    public static List<SpawnableEnemyWithRarity> AllInsideEnemies;
 
     /// <summary>
-    /// Returns an immutable list of all outside enemies in the game.
+    /// A list of all outside enemies in the game.
     /// </summary>
-    public static List<EnemyType> AllOutsideEnemies => _allEnemies.Where(Enemy => Enemy.enemyType.isOutsideEnemy)
-        .Select(Enemy => Enemy.enemyType).ToList();
+    public static List<SpawnableEnemyWithRarity> AllOutsideEnemies;
 
     /// <summary>
-    /// Returns an immutable list of all daytime enemies in the game.
+    /// A list of all daytime enemies in the game.
     /// </summary>
-    public static List<EnemyType> AllDaytimeEnemies => _allEnemies.Where(Enemy => Enemy.enemyType.isDaytimeEnemy)
-        .Select(Enemy => Enemy.enemyType).ToList();
-
+    public static List<SpawnableEnemyWithRarity> AllDaytimeEnemies;
 
     /// <summary>
     /// Tries to get the <see cref="EnemyType"/> of the specified <see cref="EnemyAI"/> type.
@@ -44,7 +43,7 @@ internal static class LevelManager {
     /// <typeparam name="T">type of the enemy</typeparam>
     /// <returns>true if the enemy was found</returns>
     public static bool TryGetEnemy<T>(out EnemyType EnemyType) where T : EnemyAI {
-        EnemyType = _allEnemies.FirstOrDefault(Enemy => Enemy.enemyType.enemyPrefab.GetComponent<T>() != null)?
+        EnemyType = AllEnemies.FirstOrDefault(Enemy => Enemy.enemyType.enemyPrefab.GetComponent<T>() != null)?
             .enemyType;
         return EnemyType != null;
     }
@@ -121,18 +120,15 @@ internal static class LevelManager {
     internal static void AddAllEnemiesToAllLevels(SelectableLevel[] Levels) {
         // NOTE: Make sure this code runs, even if SpawnOnAllMoons is disabled.
         // It's needed further down the line.
-        _allEnemies = Levels
-            .SelectMany(Level => Level.Enemies.Concat(Level.OutsideEnemies).Concat(Level.DaytimeEnemies))
-            .GroupBy(Enemy => Enemy.enemyType.enemyName)
-            .Select(Group => Group.First())
-            .ToList();
+        AllInsideEnemies = Levels.SelectMany(Level => Level.Enemies).SortEnemies();
+        AllOutsideEnemies = Levels.SelectMany(Level => Level.OutsideEnemies).SortEnemies();
+        AllDaytimeEnemies = Levels.SelectMany(Level => Level.DaytimeEnemies).SortEnemies();
 
         if (!EnemyAdjustments.SpawnOnAllMoons.Value) return;
         foreach (var level in Levels) {
-            // Clear old enemy list
-            level.Enemies.Clear();
-            // Add all inside enemies to the level
-            level.Enemies.AddRange(_allEnemies.Where(Enemy => !Enemy.enemyType.isOutsideEnemy));
+            // Add enemy to level if it doesn't already exist.
+            level.Enemies.AddRange(AllInsideEnemies.Where(InsideEnemy =>
+                level.Enemies.All(Enemy => Enemy.enemyType.enemyName != InsideEnemy.enemyType.enemyName)));
         }
     }
 
@@ -222,4 +218,11 @@ internal static class LevelManager {
         // Finally, set the keys back to the curve.
         Curve.keys = keys;
     }
+
+    private static List<SpawnableEnemyWithRarity> SortEnemies(this IEnumerable<SpawnableEnemyWithRarity> Enemies) =>
+        Enemies
+            .OrderByDescending(Enemy => Enemy.rarity)
+            .GroupBy(Enemy => Enemy.enemyType.enemyName)
+            .Select(Group => Group.First())
+            .ToList();
 }
