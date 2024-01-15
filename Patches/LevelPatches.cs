@@ -1,6 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming,RedundantAssignment
 
 using BrutalCompanyPlus.Objects;
+using BrutalCompanyPlus.Utils;
 using HarmonyLib;
 
 namespace BrutalCompanyPlus.Patches;
@@ -14,6 +15,8 @@ internal static class LevelPatches {
         // Add all enemies to all levels (if enabled)
         LevelManager.AddAllEnemiesToAllLevels(__instance.levels);
         foreach (var level in __instance.levels) {
+            // Don't modify the Company Building
+            if (level.name == LevelNames.CompanyBuilding) continue;
             // Initialize moon heat values
             MoonHeatManager.InitializeFor(level);
             // Apply configured enemy rarity values
@@ -32,9 +35,17 @@ internal static class LevelPatches {
     private static void SelectLevelEventPatch(ref RoundManager __instance, ref SelectableLevel newLevel) {
         // Make sure we're the host
         if (!__instance.IsHost) return;
+
+        // Don't do anything if we're at the Company Building
+        if (newLevel.name == LevelNames.CompanyBuilding) {
+            Plugin.Logger.LogWarning("Landed at the Company Building, forcing no event...");
+            ChatUtils.Send("<color=green>Welcome to the Company Building!</color>", Clear: true);
+            return;
+        }
+
         // Adjust the level's heat values
         MoonHeatManager.AdjustHeatValues(newLevel);
-        // Select a random event for this level and session
+        // Select a random event for this round
         EventManager.StartEventServer(newLevel);
     }
 

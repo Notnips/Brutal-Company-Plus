@@ -65,11 +65,6 @@ public static class EventManager {
     }
 
     private static IEvent SelectRandomEvent(SelectableLevel Level) {
-        if (Level.sceneName == "CompanyBuilding") {
-            Plugin.Logger.LogWarning("Landed at The Company Building, forcing no event...");
-            return EventRegistry.GetEvent<NoneEvent>();
-        }
-
         const int maxAttempts = 20;
         var attempts = 0;
         while (true) {
