@@ -3,6 +3,7 @@
 namespace BrutalCompanyPlus.Utils;
 
 public static class LevelNames {
+    public const string CompanyBuilding = "CompanyBuildingLevel";
     public const string Experimentation = "ExperimentationLevel";
     public const string Assurance = "AssuranceLevel";
     public const string Vow = "VowLevel";
